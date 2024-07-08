@@ -1,0 +1,24 @@
+.about-back{
+    margin-top: 0px;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    align-items: center;
+}
+.about-main{
+    margin-top: 20px;
+    width: 70%;
+}
+.article-title{
+    font-size: 35px;
+    word-spacing: 3px;
+    font-weight:bold ;
+    color: green;
+}
+.about-p{
+    font-size: 23px;
+    margin: 17px 0px;
+    word-spacing: 1px;
+    line-height: 33px;
+    color: black;
+}
