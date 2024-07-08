@@ -1,33 +1,55 @@
 
 from rest_framework import generics
-from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from .models import MyUser
 from rest_framework import status 
 from rest_framework.response import Response
 from .serializers import UserSerializer
 from rest_framework import mixins
-from rest_framework.authentication import BasicAuthentication,TokenAuthentication,SessionAuthentication
-from rest_framework.permissions import IsAuthenticated,IsAdminUser
-
+from rest_framework.permissions import IsAuthenticated,AllowAny
+from rest_framework.decorators import api_view,authentication_classes,permission_classes
+from rest_framework.authtoken.models import Token
 # Create your views here.
 
-class Userapi(generics.CreateAPIView, generics.ListAPIView,generics.UpdateAPIView,
-    generics.RetrieveAPIView,generics.DestroyAPIView):
+
+class ListUserapi(generics.ListAPIView,generics.RetrieveAPIView):
     queryset = MyUser.objects.all()
     serializer_class = UserSerializer
-    #authentication_classes = [SessionAuthentication,BasicAuthentication]
-   # authentication_classes=[TokenAuthentication]
-    #permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [AllowAny]
     lookup_field = 'id'
+
     def get(self,request,id=None):
         if id:
             return self.retrieve(request)
         else:
             return self.list(request)
+
+
+class CreateUserapi(generics.CreateAPIView):
+    queryset = MyUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny]
+    lookup_field = 'id'
+
     def post(self,request):
         return self.create(request)
+
+
+class UpdateUserapi(generics.UpdateAPIView):
+    queryset = MyUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny]
+    lookup_field = 'id'
+
     def put(self,request,id = None):
         return self.partial_update(request,id)
+
+class DeleteUserapi(generics.DestroyAPIView):
+    queryset = MyUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny]
+    lookup_field = 'id'
+
     def delete(self,request,id = None):
         if id:
             return self.destroy(request,id)
