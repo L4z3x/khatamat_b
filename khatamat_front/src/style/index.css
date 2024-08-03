@@ -1,0 +1,25 @@
+body {
+  margin: 0;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+#root{
+  height: 100%;
+}
+@font-face {
+  font-family: 'cairo';
+  src: url('../assets/fonts/Cairo/Cairo-VariableFont_slnt\,wght.ttf')format('woff2');
+} 
+@font-face {
+  font-family: 'kufam';
+  src: url('../assets/fonts/Kufam/Kufam-VariableFont_wght.ttf') format('woff2');
+}

@@ -1,4 +1,6 @@
-khatamat_f/
-khtamat_front/
+plan.txt
+khatamat_front/build
+khatamat_front/node_modules
+khatamat_front/.gitignore
 db.sqlite3
 test.rest

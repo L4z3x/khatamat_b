@@ -1,0 +1,33 @@
+.sign-form-window{
+    align-self: center;
+    background-color: rgba(51, 138, 51, 0.884);
+    border: 2px solid rgb(183, 200, 204,0.5);
+    border-radius: 10px ;
+    display: flex;
+    width: 420px;
+    height: 570px;
+    flex-wrap: nowrap;
+    margin: 50px 0px;
+    flex-direction: column;
+
+}
+select{
+    width:135px;
+    text-align: center;
+    font-weight: light;
+    padding-bottom: 5px;
+    height: 28px;
+    background-color: aliceblue;
+    margin-left: 15px ;
+    border-radius: 3px;
+}
+.gender-div{
+    width: 300px;
+    margin-top: 20px;
+    display: flex;
+}
+.country-div{
+    width: 300px;
+    margin-top: 20px;
+    display: flex;
+}

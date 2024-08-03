@@ -29,7 +29,6 @@ class CreateUserapi(generics.CreateAPIView):
     queryset = MyUser.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
-    lookup_field = 'id'
 
     def post(self,request):
         return self.create(request)

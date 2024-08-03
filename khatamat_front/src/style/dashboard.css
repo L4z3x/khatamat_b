@@ -1,0 +1,82 @@
+.timer{
+    width: 100%;
+    display: flex;
+    background-color: rgba(4, 158, 104, 0.8);
+    justify-content: center;
+    align-items: center;
+}
+.time{
+    background-color: rgba(219, 8, 8, 0.9);
+    padding: 10px;
+    border-radius: 10px;
+}
+.part-container{
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: space-around;
+}
+.part{
+    width: 150px;
+    font-size: 25px;
+    font-weight: bold;
+    height: 65px;
+    margin: 10px;
+    border-radius: 10px;
+    color: whitesmoke;
+    border: 1px solid rgb(27, 168, 5);
+    background-color: rgb(27, 168, 5);
+}
+.part-default{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 85%;
+    font-family: cairo;
+}
+.span-part{
+    text-align: end;
+}
+.part:hover{
+    opacity: 0.75;
+    cursor: pointer;
+    box-shadow: 0px 0px 10px 4px rgba(0, 0, 0, 0.2);
+    color: black;
+}
+.part-button-div{
+    display: flex;
+    width: 100%;
+    justify-content:space-around;
+}
+.info-icon{
+    border-radius:2px;
+    padding: 4px;
+    height: 18px;
+    background-color: transparent;
+}
+.info-icon:hover{
+    opacity: 0.5;
+}
+.info-div{
+    position: relative;
+    z-index: 1;
+    color: black;
+    text-align: center;
+    background-color: white;
+    width: max-content;
+    height: 50px;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    text-wrap:  wrap;
+    border: 1px solid;
+    bottom:-5px;
+    left: 10px;
+}
+.info-span{
+    width: fit-content;
+    padding: 10px 10px;
+    font-size: 15px;
+    font-family: cairo;
+}

@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser,PermissionsMixin,BaseUserManager
 from django.utils import timezone
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 # Create your models here.
 class MyUserManager(BaseUserManager):
     def create_user(self,username,email,gender,country,password=None, **extra_fields):
@@ -40,6 +41,10 @@ class MyUser(AbstractBaseUser,PermissionsMixin):
     objects = MyUserManager()
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'gender', 'country']
+    def save(self, *args, **kwargs):
+        if self.password and not self.password.startswith('pbkdf2_sha256$'):
+            self.password = make_password(self.password)
+        super().save(*args, **kwargs)
     def __str__(self):
         return self.username
 
