@@ -1,30 +1,54 @@
-import '../style/about.css'
-function About () {
-    return(
+import '../style/about.css';
+
+function About() {
+    return (
         <div className="about-back">
             <div className="about-main">
                 <article>
-                    <span className='article-title'>What is  Khatamat ?</span>
-                    <p className='about-p'>Khatamat is a hub-like website that
-                     allow you to create a group with others and do a <strong>khatma</strong> together .</p>
-                </article>                          {/*TODO: add that # in the url when khatma is clicked.  */}
-                <article>
-                    
-                <span className='article-title'>What is a Khatma ?</span>
-                    <p className='about-p'>A khatma is choosing a part of the Holy Quran or all of it 
-                    to be read by a group of people or a single one, and that should be in a known period of time (ex : week). </p>
+                    <span className='article-title'>What is Khatamat?</span>
+                    <p className='about-p'>
+                        Khatamat is a unique platform designed to bring together Muslims for the collective goal of worshiping <strong>Allah</strong> and getting closer to him. Here’s a closer look at how it works and its benefits:
+                    </p>
+                    <div className='about-details'>
+                        <div className='detail-item'>
+                            <h3>Group Collaboration</h3>
+                            <ul>
+                                <li><strong>Create and Join Groups:</strong> Users can create or join groups within the platform, dedicated to completing a khatma.</li>
+                                <li><strong>Collaborative Reading:</strong> Members work together to ensure every part of the Quran is read within a specified timeframe.</li>
+                            </ul>
+                        </div>
+                        <div className='detail-item'>
+                            <h3>Structured Reading</h3>
+                            <ul>
+                                <li><strong>Organized Reading Schedule:</strong> Groups can set clear schedules, whether for a week or longer, accommodating their needs.</li>
+                                <li><strong>Tracking Progress:</strong> Track reading progress and see the collective effort of the group, enhancing motivation.</li>
+                            </ul>
+                        </div>
+                        <div className='detail-item'>
+                            <h3>Spiritual Growth</h3>
+                            <ul>
+                                <li><strong>Shared Experience:</strong> Participating in a khatma with others enhances spiritual unity and purpose.</li>
+                                <li><strong>Encouraging Consistency:</strong> Regular group reading helps maintain consistency in spiritual practices.</li>
+                            </ul>
+                        </div>
+                        <div className='detail-item'>
+                            <h3>Educational Resources</h3>
+                            <ul>
+                                <li><strong>Learning Materials:</strong> Access to explanations of Quranic verses and supplementary materials to deepen understanding.</li>
+                            </ul>
+                        </div>
+                        <div className='detail-item'>
+                            <h3>Community Building</h3>
+                            <ul>
+                                <li><strong>Connecting Muslims:</strong> Khatamat helps users connect with fellow Muslims, building a supportive community around Quranic readings.</li>
+                            </ul>
+                        </div>
+                    </div>
                 </article>
-                <article>
-                    <span className='article-title'>Need an example ?</span>
-                    <p className='about-p'>a group of 30 person decided to do a khatma of the hole Quran in a week
-                    ,each person will take his part(s) to read it, the hole khatma is devided to 
-                    even part and that part could be a <strong>
-                    <a className='about-p' href='https://en.wikipedia.org/wiki/Juz%27#Hizbs'target="_blank" rel="noopener noreferrer">hizb</a></strong> or
-                    &nbsp;<strong><a className='about-p' href='https://en.wikipedia.org/wiki/Juz%27#Hizbs'target="_blank" rel="noopener noreferrer">Juz'</a>
-                    </strong> or more.</p>
-                </article>
+                
             </div>
         </div>
-    )
+    );
 }
+
 export default About;
