@@ -1,17 +1,18 @@
+import React from "react";
+import { REFRESH_TOKEN } from "../constants";
+import { ACCESS_TOKEN } from "../constants";
 import api from "../api";
-import { Navigate} from "react-router-dom";
-import {jwtDecode} from 'jwt-decode';
-import { ACCESS_TOKEN,REFRESH_TOKEN } from "../constants";
 import { useState,useEffect } from "react";
-import Login from "./login";
+import {jwtDecode} from 'jwt-decode';
 
-export default function ProtectedRoute ({children}) {
 
-    const [IsAuthorized,setIsAuthorized] = useState(null)
+
+function IsAuth ({children}) {
+    const [IsAuthorized,setIsAuthorized] = useState(null);
     useEffect(()=>{
         auth();
-    },[])
-    const refrechToken = async () => {
+    })
+    const refreshToken = async () => {
         const refresh = localStorage.getItem(REFRESH_TOKEN)
         console.log(refresh)
         if (!refresh) {
@@ -43,10 +44,10 @@ export default function ProtectedRoute ({children}) {
 
     const auth = async () => {
         const token = localStorage.getItem(ACCESS_TOKEN);
-        //console.log(token)
+        console.log(token)
         if (!token) {
             setIsAuthorized(false);
-            return refrechToken()
+            return refreshToken()
         }
         const decoded = jwtDecode(token);
         const tokenExp = decoded.exp ;
@@ -57,16 +58,17 @@ export default function ProtectedRoute ({children}) {
             return
         }else{
            // console.log('expired token')
-            await refrechToken();
+            await refreshToken();
         }
     }
-
     if (IsAuthorized === null){
-        return <div>Loading...</div>
+        return 
     }
-    if (children === '<Login />') {
-        console.log('navigating to login')
-      return  IsAuthorized ? <Navigate to="/home" /> : <Login />
-    }
-    return IsAuthorized ? children : <Navigate to='/login' />
+    return (<>
+        {React.Children.map(children, child =>
+        React.cloneElement(child, { loggedIn: IsAuthorized.toString() })
+      )}
+        </>
+    );
 }
+export default IsAuth;

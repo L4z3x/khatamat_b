@@ -1,5 +1,5 @@
 import '../style/profile.css'
-export default function Profile(){
+export default function Profile({loggedIn}){
     
 
 return(

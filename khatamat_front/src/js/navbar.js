@@ -1,49 +1,73 @@
-import React, {useRef } from 'react'
-import '../style/navbar.css'
-export default function Navbar(){
-    const GoProfile = ()=>{window.location.href = '/profile';};
-    const homeRef = useRef('');
-    const contactRef = useRef('');
-    const aboutRef = useRef('');
-    const khatamatRef = useRef('');
-    const changeTagColor = ()=>{
-        const url = window.location.pathname;
-        switch(url) {
-            case '/about':
-                aboutRef.current.style.color = 'green';
-                break;
-            case '/contact':
-                contactRef.current.style.color = 'green';
-                break;
-            case '/home':
-                homeRef.current.style.color = 'green';
-                break;
-        }
-    }
-    return(
-        <div onLoad={changeTagColor}className='backdiv'>
-            <ul className='ul-nav '>
-                <li className='title li-nav'>
-                    <a ref={khatamatRef} className='title li-nav'>ختمات</a>
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import Sidebar from './sidebar';
+import '../style/navbar.css';
+
+function Navbar({ loggedIn }) {
+    console.log(loggedIn);
+    const location = useLocation();
+    const nav = useNavigate();
+    const [activePath, setActivePath] = useState(location.pathname);
+    const [isSidebarOpen, setSidebarOpen] = useState(false);
+
+    const toggleSidebar = () => {
+        setSidebarOpen(!isSidebarOpen);
+    };
+    useEffect(() => {
+        setActivePath(location.pathname);
+    }, [location.pathname]);
+
+    const renderLink = (path, label) => (
+        <li className="li-nav">
+            <a onClick={() => { nav(path); }} className={activePath === path ? 'active li-a' : 'li-a'}>{label}</a>
+        </li>
+    );
+
+    return (
+        <div className="backdiv">
+            <ul className="ul-nav">
+                <li className="title li-nav">
+                    <a onClick={() => { nav('/Userhome'); }} className="title">ختمات</a>
                 </li>
-                <li className='li-nav'>
-                    <a onClick={()=>{window.location.pathname = '/home'}} ref={homeRef} className='li-nav'>Home</a>
-                </li>
-                <li className='li-nav'>
-                    <a onClick={()=>{window.location.pathname = '/contact'}} ref={contactRef} className='li-nav'>Contact</a>
-                </li>
-                <li className='li-nav'>
-                    <a onClick={()=>{window.location.pathname = '/about'}} ref={aboutRef} className='li-nav'>About</a>
-                </li>
-                <li className='user1'>
-                    <div className='user'>
-                        <a>username</a>
-                        <img className='profile-pic' onClick={GoProfile} src={require('../assets/img/Default-Profile-pic.jpg')}/>
-                    </div>
-                </li>
+                {loggedIn==='true' ? (
+                    <>
+                        {renderLink('/Userhome', 'Home')}
+                        {renderLink('/articles', 'Articles')}
+                        {renderLink('/khatamat', 'Khatamat')}
+                        {renderLink('/resources', 'Resources')}
+                        <li className="li-nav">
+                            <a className="li-a">Search</a>
+                        </li>
+                        <li className="user1">
+                            <div className="user">
+                                <div className="menu-icon" onClick={toggleSidebar}>
+                                    <div className="bar"></div>
+                                    <div className="bar"></div>
+                                    <div className="bar"></div>
+                                </div>
+                                <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+                            </div>
+                        </li>
+                    </>
+                ) : (
+                    <>
+                        {renderLink('/home', 'Home')}
+                        {renderLink('/forum', 'Forum')}
+                        {renderLink('/aboutus', 'About')}
+                        {renderLink('/faqs', 'FAQs')}
+                        {renderLink('/contact', 'Contact')}
+                        {location.pathname !== '/signup' && location.pathname !== '/login' && (
+                            <li className="user1">
+                                <button onClick={() => { nav('/signup'); }} className="signup-button">
+                                    Sign Up
+                                </button>
+                            </li>
+                        )}
+                    </>
+                )}
             </ul>
         </div>
-            
-    )
+    );
 }
 
+export default Navbar;

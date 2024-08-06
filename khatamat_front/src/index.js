@@ -13,19 +13,17 @@ import About from './js/about';
 import Home from './js/home';
 import NotFound from './js/NotFound';
 import ProtectedRoute from './js/ProtectedRoutes';
-import { ACCESS_TOKEN, REFRESH_TOKEN } from './constants';
+import Contact from './js/contact';
+import FAQs from './js/faqs'; 
+import IsAuth from './js/isAuth';
+import Logout from './js/logout';
 
-
-function Logout(){
-  localStorage.clear();
-  return <Login />
-}
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   
     <React.StrictMode>
       <Router>
-        <Navbar />
+        
         <Routes>
           
           <Route path='/dashboard' element={
@@ -34,36 +32,61 @@ root.render(
             </ProtectedRoute>
           }/>
 
-          <Route path='/home' element={
-              <><Home/></>
+          <Route path={'/home'} element={
+            <IsAuth>
+              <Navbar /><Home />
+            </IsAuth>
+              
+            }/>
+
+          <Route path='Forum' element={
+            <IsAuth>
+              <Navbar />
+            </IsAuth>
             }/>
 
           <Route path='/aboutus' element={
-            <About />
-          }/>
+            <IsAuth>
+              <Navbar /><About />
+            </IsAuth>
+            }/>
+
+          <Route path='/faqs' element={
+            <IsAuth><Navbar /><FAQs /></IsAuth>
+            }/>
+
+          <Route path='/contact' element={
+            <IsAuth>
+              <Navbar /><Contact/>
+            </IsAuth>
+            }/>
 
           <Route path='/signup' element={
-              <Signup/>
-          }/>
+              <IsAuth><Navbar/><Signup/></IsAuth>
+            }/>
 
           <Route path={'/login'} element={
-              <Login/>
+              <IsAuth><Navbar/><Login/></IsAuth>
             }/>  
 
           <Route path={'/profile'} element={
             <ProtectedRoute>
-              <Profile/>
+              <IsAuth>
+                <Navbar/><Profile/>
+              </IsAuth>
             </ProtectedRoute>
-          }/>  
+            }/>  
 
           <Route path={'*'} element={
-            <ProtectedRoute>
-            <><Navbar /><NotFound /></>
-            </ProtectedRoute>
-          }/> 
+            <IsAuth><Navbar /><NotFound /></IsAuth>
+            }/>
+
           <Route path={'/logout'} element={
-            <Logout />
-          }/>
+            <IsAuth>
+              <Navbar /><Logout />
+            </IsAuth>
+            }/>
+
         </Routes>
       </Router>
     </React.StrictMode>

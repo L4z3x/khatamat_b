@@ -1,7 +1,7 @@
 import React , { useEffect ,useState,useRef } from 'react';
 import '../style/dashboard.css'
 
-function DashBoard(){
+function DashBoard({loggedIn}){
    
     const [part , setPart] = useState([])  // <--- for storing part that are clicked.
     const partRefs = useRef([])

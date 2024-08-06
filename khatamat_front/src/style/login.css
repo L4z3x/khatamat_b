@@ -10,7 +10,7 @@
 }
 .log-form-window{
     align-self: center;
-    background-color: rgba(51, 138, 51, 0.884);
+    background-color: rgb(238, 243, 235);
     border: 2px solid rgb(183, 200, 204,0.5);
     border-radius: 10px ;
     display: flex;
@@ -41,7 +41,7 @@ form{
     display: block;
     font-size: 25px;
     font-weight: bold;
-    color: aliceblue;
+    color: #f5a905;
 }
 input{
     display: block;
@@ -61,12 +61,12 @@ input{
 
 .form-submit-but{
     width: 120px;
-    background-color: rgb(65, 231, 43);
+    background-color: rgb(245, 169, 5);
     font-size: 20px;
     border-radius: 5px;
     border: none;
     font-weight: bold;
-    color: aliceblue;
+    color: whitesmoke;
     margin-top: 20px ;
     padding: 6px 8px;
 }

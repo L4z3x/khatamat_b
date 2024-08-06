@@ -35,7 +35,7 @@ function Login(){
     return (
         <div className='background'>
             <div className='log-form-window'>
-                <p className='form-title'>Welcome to Khatamat</p>
+                <p className='form-title'>Welcome Back</p>
                 <form onSubmit={handleSubmit}>
                     <input type='text' onChange={handleChange} className='input' placeholder='username' required/>
                     <input type='password' onChange={handleChange} className='input1' placeholder='password' required/>
@@ -67,6 +67,7 @@ async function LoginApi(Input,navigate){
         console.log(data);
         localStorage.setItem(ACCESS_TOKEN,(data.access))
         localStorage.setItem(REFRESH_TOKEN,(data.refresh))
+        console.log(localStorage.getItem(ACCESS_TOKEN))
         navigate('/home')
     } catch (error) {
         console.log(error.code)

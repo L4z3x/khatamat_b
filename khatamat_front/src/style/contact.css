@@ -1,0 +1,96 @@
+.contact-back {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    background-color: #f9f8f6; /* Light background for better contrast */
+    padding: 50px 20px;
+}
+
+.contact-main {
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 40px;
+    border-radius: 15px;
+    max-width: 700px;
+    width: 100%;
+}
+
+.contact-title {
+    font-size: 2.5em;
+    color: #f0a500; /* Yellow-orange theme color */
+    margin-bottom: 20px;
+}
+
+.contact-description {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+    color: #ddd;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.form-group label {
+    font-size: 1.2em;
+    color: #f0a500; /* Yellow-orange theme color */
+    margin-bottom: 5px;
+}
+
+.form-group input, .form-group textarea {
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    font-size: 1em;
+}
+
+.contact-submit {
+    background-color: #f0a500;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2em;
+    margin-top: 20px;
+}
+
+.contact-submit:hover {
+    background-color: #e08900;
+}
+
+.contact-info {
+    margin-top: 30px;
+    text-align: left;
+    color: #ddd;
+}
+
+.contact-info h2 {
+    font-size: 1.8em;
+    color: #f0a500; /* Yellow-orange theme color */
+    margin-bottom: 10px;
+}
+
+.contact-info p {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.contact-info a {
+    color: #f0a500; /* Yellow-orange theme color */
+    text-decoration: none;
+}
+
+.contact-info a:hover {
+    text-decoration: underline;
+}
