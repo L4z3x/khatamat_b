@@ -1,51 +1,9 @@
-/*import React ,  { useEffect,useRef } from 'react'
-import '../style/home.css'
-
-export default function Home () {
-    const imgRef = useRef(null)
-    const homeRef = useRef(null)
-    const handleSize = ()=>{
-        console.log('resized')
-        if (imgRef.current && homeRef.current) {
-            console.log(imgRef.current.height);
-            homeRef.current.style.height = `${imgRef.current.height}px` ;
-        }
-    }
-    useEffect(() => {
-        window.addEventListener('resize', handleSize);
-        handleSize();
-        return () => {
-            window.removeEventListener('resize', handleSize);
-        };
-    }, []);
-return( 
-        <div ref={homeRef} className='home-back'>
-            <img  onLoad={handleSize} ref={imgRef} src={require('../assets/img/homeback.jpg')} className='home-back-img'/>
-            <span className='home-welcome'>welcome to</span>
-            <span className='home-title'>ختمات</span>
-            
-            <div className='home-signup-login'>
-                <div>
-                    <span className='home-but-span'>First time here ? </span>
-                    <button className='home-but'>Sign up</button>
-                </div>
-                <div>
-                    <span className='home-but-span'>Already have an account ?</span>
-                    <button className='home-but'>Login</button>
-                </div>
-                
-            </div>
-        </div>
-
-)
-}*/
-
-
-
 import React, { useEffect, useRef } from 'react';
 import '../style/home.css';
-
+import { useNavigate } from 'react-router-dom';
 export default function Home() {
+
+    const nav = useNavigate();
     const imgRef = useRef(null);
     const homeRef = useRef(null);
     const handleSize = () => {
@@ -73,11 +31,11 @@ export default function Home() {
                 <div className='home-signup-login'>
                     <div>
                         <span className='home-but-span'>First time here?</span>
-                        <button className='home-but'>Sign up</button>
+                        <button onClick={()=>{nav('/signup')}} className='home-but'>Sign up</button>
                     </div>
                     <div>
                         <span className='home-but-span'>Already have an account?</span>
-                        <button className='home-but'>Login</button>
+                        <button  onClick={()=>{nav('/login')}} className='home-but'>Login</button>
                     </div>
                 </div>
                 <div className='home-info'>
@@ -94,7 +52,7 @@ export default function Home() {
                     <div className='home-info-item'>
                         <h3>Contact Us</h3>
                         <p>Have any questions? Get in touch with us for more information.</p>
-                        <a href='/contact-us' className='home-info-link'>Contact us</a>
+                        <a href='/contact' className='home-info-link'>Contact us</a>
                     </div>
                 </div>
             </di>

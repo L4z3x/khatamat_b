@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import "../style/logout.css";
+import { useNavigate } from "react-router-dom";
 
 function Logout({ show, onClose }) {
+  const nav = useNavigate();
   if (!show) {
     return null;
   }
 
   const handleLogout = () => {
     localStorage.clear();
-    window.location.href = "/login"; // Redirect to login page
+    nav("/login");
     console.log("User logged out");
   };
 
