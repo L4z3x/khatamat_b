@@ -76,15 +76,15 @@ class Part(models.Model):            # TODO: Add customization....
 
 class Khatma(models.Model):
     duration_list=[
-        ('1 day',1),
-        ('2 day',2),
-        ('3 day',3),
-        ('4 day',4),
-        ('5 day',5),
-        ('6 day',6),
-        ('week',7),
+        (1,'1 day'),
+        (2,'2 day'),
+        (3,'3 day'),
+        (4,'4 day'),
+        (5,'5 day'),
+        (6,'6 day'),
+        (7,'week'),
     ]
-    hizbs_translated = [
+    hizbs_list = [
         ("From 'Opener' verse 1 to 'Cow' verse 74", 1),
         ("From 'Cow' verse 75 to 'Cow' verse 141", 2),
         ("From 'Cow' verse 142 to 'Cow' verse 202", 3),
@@ -148,21 +148,21 @@ class Khatma(models.Model):
     ]
 
 
-    admin = models.OneToOneField(get_user_model(),on_delete=models.CASCADE,related_name='khatma')
+    admin = models.OneToOneField(get_user_model(),on_delete=models.CASCADE,related_name='Khatma')
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=100)
     photo = models.ImageField(upload_to="khatma_imgs")
     num_mem = models.IntegerField()  
-    num_days = models.CharField(choices=duration_list,default=None)
-    hizbs = models.CharField(choices=hizbs_list,defaul=None)    
+    num_days = models.IntegerField(choices=duration_list,default=None)
+    hizbs = models.CharField(choices=hizbs_list,max_length=100,default=None)    
     member = models.ManyToManyField(MyUser)
-
+    
     def __str__(self):
         return self.name
 
     def save(self,*args, **kwargs):  # add restriction ...
         if self.num_mem <= 1:
             return(error)
-        if self.num_days > 7:
+        if self.num_days :
             self.num_days = 7
-        super().save(**args, **kwargs)
+        super().save(*args, **kwargs)
