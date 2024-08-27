@@ -24,7 +24,7 @@ for Windows:
 now clone the repo and install requirement for the backend
 ```
 git clone https://github.com/L4z3x/khatamat_b 
-pip install -r requirements.txt
+pip install -r requirement.txt
 ``` 
 now install the requirement for the frontend
 ``` 
@@ -41,3 +41,4 @@ start the local server
 ```
 python3 manage.py runserver
 ```
+change what you want and 

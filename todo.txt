@@ -1,0 +1,10 @@
+
+
+-->style:
+        enhance sidebar
+-->login and signup:    
+        handle error logs and sign ups
+        content authentication in signup form
+        google signup and facebook & ...
+
+
