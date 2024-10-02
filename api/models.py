@@ -50,29 +50,6 @@ class MyUser(AbstractBaseUser,PermissionsMixin):
 
         
 
-class Part(models.Model):            # TODO: Add customization....
-
-    user = models.OneToOneField(get_user_model(),on_delete=models.CASCADE,related_name= 'parts')
-    part01 = models.CharField(max_length=20, blank=True, null=True)
-    part02 = models.CharField(max_length=20, blank=True, null=True)
-    part03 = models.CharField(max_length=20, blank=True, null=True)
-    part04 = models.CharField(max_length=20, blank=True, null=True)
-    part05 = models.CharField(max_length=20, blank=True, null=True)
-    part06 = models.CharField(max_length=20, blank=True, null=True)
-    part07 = models.CharField(max_length=20, blank=True, null=True)
-    part08 = models.CharField(max_length=20, blank=True, null=True)
-    part09 = models.CharField(max_length=20, blank=True, null=True)
-    part10 = models.CharField(max_length=20, blank=True, null=True)
-    part11 = models.CharField(max_length=20, blank=True, null=True)
-    part12 = models.CharField(max_length=20, blank=True, null=True)
-    def __str__(self):
-        part_fields = [
-            self.part01, self.part02, self.part03, self.part04,
-            self.part05, self.part06, self.part07, self.part08,
-            self.part09, self.part10, self.part11, self.part12
-        ]
-        non_empty_count = sum(1 for part in part_fields if part)  # count the non-empty fields
-        return f"{self.user.username}={non_empty_count}"
 
 class Khatma(models.Model):
     duration_list=[
