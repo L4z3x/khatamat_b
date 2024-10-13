@@ -3,7 +3,15 @@
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
+import django
 
+# fix issue with rest_framework_jwt using smart_text
+from django.utils.encoding import smart_str  
+django.utils.encoding.smart_text = smart_str
+
+# fix issue with rest_framework_jwt using ugettecxt
+from django.utils.translation import gettext
+django.utils.translation.ugettext = gettext
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,9 +43,10 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'api',
+    'khatma',
 ]
 REST_FRAMEWORK={
-    'DEFAULT_AUTHENTICATION_CLASSES': [
+     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES':[
