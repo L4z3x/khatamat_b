@@ -20,7 +20,7 @@ export default function Signup(){
 	async function SignupApi() {
 		try {
 
-			const response = await api.post('/api/user/signup/',{
+			const response = await api.post('/api/signup/',{
 				headers:{"Content-Type":"application/json"},
 				"username": Input.username ,
 				"password": Input.password,

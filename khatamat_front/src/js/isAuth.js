@@ -22,7 +22,7 @@ function IsAuth ({children}) {
         } else {
             console.log("there is a refresh")
             try {
-                const res = await api.post("/api/token/refresh/", { refresh: refresh, 
+                const res = await api.post("/api/refreshtoken/", { refresh: refresh, 
                 });
                 if (res.status === 200) {
                     localStorage.setItem(ACCESS_TOKEN, res.data.access)

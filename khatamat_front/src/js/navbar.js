@@ -29,10 +29,13 @@ function Navbar({ loggedIn }) {
                 <li className="title li-nav">
                     <a onClick={() => { nav('/Userhome'); }} className="title">ختمات</a>
                 </li>
+
+
+
                 {loggedIn==='true' ? (
                     <>
-                        {renderLink('/Userhome', 'Home')}
-                        {renderLink('/articles', 'Articles')}
+                        {renderLink('/Userhome', 'home')}
+                        {renderLink('/articles', 'articles')}
                         {renderLink('/khatamat', 'Khatamat')}
                         {renderLink('/resources', 'Resources')}
                         <li className="li-nav">

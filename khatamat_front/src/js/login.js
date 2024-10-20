@@ -57,7 +57,7 @@ function Login(){
 }
 async function LoginApi(Input,navigate){
     try {
-        const response = await api.post("/api/login/token/",
+        const response = await api.post("/api/login/",
             {
                 headers:{"Content-Type":"application/json",},
                 "username": Input.username,

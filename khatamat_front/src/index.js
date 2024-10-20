@@ -7,7 +7,6 @@ import Login from './js/login'
 import Navbar from './js/navbar'
 import Signup from './js/singup'
 import Profile from './js/profile'
-import DashBoard from './js/dashboard'; 
 import reportWebVitals from './reportWebVitals';
 import About from './js/about';
 import Home from './js/home';
@@ -17,6 +16,9 @@ import Contact from './js/contact';
 import FAQs from './js/faqs'; 
 import IsAuth from './js/isAuth';
 import Logout from './js/logout';
+import Khatmat from './js/khatamat';
+import Userhome from './js/user-home';
+import Leftbar from './js/leftBar';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -26,12 +28,6 @@ root.render(
         
         <Routes>
           
-          <Route path='/dashboard' element={
-            <ProtectedRoute>
-              <DashBoard />
-            </ProtectedRoute>
-          }/>
-
           <Route path={'/home'} element={
             <IsAuth>
               <Navbar /><Home />
@@ -44,7 +40,11 @@ root.render(
               <Navbar />
             </IsAuth>
             }/>
-
+          <Route path='/' element={
+            <IsAuth>
+              <Leftbar/><Navbar />
+            </IsAuth>
+            }/>
           <Route path='/aboutus' element={
             <IsAuth>
               <Navbar /><About />
@@ -86,6 +86,12 @@ root.render(
               <Navbar /><Logout />
             </IsAuth>
             }/>
+
+          <Route path={'/khatamat'} element={
+            <IsAuth>
+              <Navbar/><Khatmat/>
+            </IsAuth>
+          }/>            
 
         </Routes>
       </Router>
