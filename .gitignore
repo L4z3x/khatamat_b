@@ -5,7 +5,7 @@ khatamat_front/.gitignore
 db.sqlite3
 test.rest
 aiAsisstance.txt
-
+files/*
 # github gitignore file for python
 
 # Byte-compiled / optimized / DLL files
