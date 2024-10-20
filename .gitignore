@@ -5,7 +5,7 @@ khatamat_front/.gitignore
 db.sqlite3
 test.rest
 aiAsisstance.txt
-files
+files/
 todo.txt
 # github gitignore file for python
 
