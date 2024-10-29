@@ -69,7 +69,7 @@ class Khatma(models.Model):    # khatma instance created by a khatmaGroup Admin
     name = models.CharField(max_length=20,null=False)
     khatmaGroup = models.ForeignKey(khatmaGroup,on_delete=models.CASCADE,null=False,default=None)
     start_Date = models.DateTimeField(null=False)
-    end_Date = models.DateTimeField(Null=False)#,default=timezone.datetime(2024, 10, 29, 10, 11, 45, 187116)) # required, not null
+    end_Date = models.DateTimeField(null=False)#,default=timezone.datetime(2024, 10, 29, 10, 11, 45, 187116)) # required, not null
     intentions = models.CharField(max_length=180,default=None) # required , not null provide choices
     duaa = models.CharField(max_length=180,default=None) # required , not null provide choices
 

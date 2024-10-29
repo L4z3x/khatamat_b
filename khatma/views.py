@@ -1,5 +1,6 @@
 from khatma.serializer import khatmaSerializer,khatmaGroupSerializer,khatma_G_membSeriailizer, khatma_membSerializer
-from api.models import joinRequest,Notification,MyUser
+from api.models import MyUser
+from notification.models import joinRequest
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import views

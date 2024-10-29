@@ -1,12 +1,13 @@
 from rest_framework import generics,views
 from django.shortcuts import get_object_or_404
-from .models import MyUser,joinRequest
+from .models import MyUser
+from notification.models import joinRequest
 from rest_framework import status 
 from rest_framework.response import Response
 from .serializers import UserSerializer,joinRequestSerializer
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.decorators import api_view,authentication_classes,permission_classes
-from khatma.models import khatmaGroupMembership,khatmaGroup
+from khatma.models import khatmaGroup
 # Create your views here.
 
 
