@@ -10,7 +10,14 @@
 
 --> add a delete khatma group
 --> add a khatma invitaion link
-
+--> khatma fields:
+        - share: from(s,ayat),to(s,ayat)
+        - members:
+        - intentions
+        - members shares
+        - start date
+        - end date
+        - duaa        
 
 --> login and signup:    
         handle error logs and sign ups 

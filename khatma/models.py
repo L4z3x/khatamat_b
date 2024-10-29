@@ -44,7 +44,7 @@ class khatmaGroup(models.Model):
     name = models.CharField(max_length=40,unique=True)
     icon = models.ImageField(upload_to=upload_to,serialize=True)
     members = models.ManyToManyField(MyUser,through="khatmaGroupMembership",related_name="khatmaGroup")
-    
+    bio = models.CharField(max_length=290,default='BIO')    
     objects = khatmaGroupManager()
     def __str__(self):
         return self.name
@@ -64,32 +64,33 @@ class khatmaGroupMembership(models.Model):
 
 
 class Khatma(models.Model):    # khatma instance created by a khatmaGroup Admin
-    DURATION_LIST = [  # how long it takes to complete the khatma (it needs to be dynamic)
-        ("1","1"),
-        ("2","2"),
-        ("3","3"),
-        ("4","4"),
-        ("5","5"),
-        ("6","6"),
-        ("7","7"),
-    ]   
     
     # model Fields
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=20,null=False)
     khatmaGroup = models.ForeignKey(khatmaGroup,on_delete=models.CASCADE,null=False,default=None)
-  #  member = models.ManyToManyField(MyUser,through="khatmaMembership")
-    period = models.CharField(max_length=10,choices=DURATION_LIST,default=None) # to be removed
+    start_Date = models.DateTimeField(null=False)
+    end_Date = models.DateTimeField(Null=False)#,default=timezone.datetime(2024, 10, 29, 10, 11, 45, 187116)) # required, not null
+    intentions = models.CharField(max_length=180,default=None) # required , not null provide choices
+    duaa = models.CharField(max_length=180,default=None) # required , not null provide choices
+
     class Meta:
-        unique_together = ("name","khatmaGroup")
+        unique_together = [("name","khatmaGroup")]
     objects = KhatmaManager()
     def __str__(self):
         return f"{self.name} in {self.khatmaGroup}"
 
 
 class khatmaMembership(models.Model):
-    
+    SurahList = [
+        ("the Cow","the Cow"),
+     ]
     khatmaGroupMembership = models.ForeignKey(khatmaGroupMembership,on_delete=models.CASCADE,null=False,default=None)   
     khatma = models.ForeignKey(Khatma,on_delete=models.CASCADE,null=False,default=None)
+   
+    startShareSurah = models.CharField(max_length=35,choices=SurahList,default="the Cow") # remove default
+    startShareVerse = models.IntegerField(default=1) # remove default
+    endShareSurah = models.CharField(max_length=35,choices=SurahList,default='the Cow') # remove default
+    endShareVerse = models.IntegerField(default=280) # remove default
 
     class Meta:
         unique_together = [("khatma","khatmaGroupMembership")]
