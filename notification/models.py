@@ -2,7 +2,7 @@ from django.db import models
 from khatma.models import khatmaGroup,Khatma
 from api.models import MyUser
 from django.utils import timezone
-from community.models import community
+from community.models import community,post
 
 
 
@@ -11,8 +11,8 @@ class Notification(models.Model):
         ("read","read"),
          ("unread","unread")
     ]
-    owner = models.ForeignKey(MyUser,on_delete=models.CASCADE,null=False,related_name="notification")
-    status = models.CharField(max_length=10,choices=STATUS)
+    owner = models.ForeignKey(MyUser,on_delete=models.CASCADE,null=False)
+    status = models.CharField(max_length=10,choices=STATUS,default="unread")
     created_at = models.DateTimeField(timezone.now)
 
     class Meta:
@@ -21,7 +21,7 @@ class Notification(models.Model):
 
 class joinRequest(Notification):
     user = models.ForeignKey(MyUser,on_delete=models.CASCADE,null=False,related_name="JoinRequest_owner")
-    community = models.ForeignKey(community,on_delete=models.CASCADE,null=False)    
+    community = models.ForeignKey(community,on_delete=models.CASCADE,null=True)    
     
     class Meta:
         unique_together =  [("user","community","owner")]
@@ -30,7 +30,7 @@ class joinRequest(Notification):
         return f" R:from {self.user} to {self.owner} in {self.community}"
 
 
-class message(Notification):
+class messageN(Notification):
     # message = models.ForeignKey()
     khatmaGroup = models.ForeignKey(khatmaGroup,on_delete=models.CASCADE)
 
@@ -39,10 +39,10 @@ class message(Notification):
 
 
 class postN(Notification):
-    post = models.OneToOneField('joinRequest')
-    
-    def __str__(self) -> str:
-        return f'notification of {self.post}'
+    post = models.ForeignKey(post,on_delete=models.CASCADE)
+    community = models.ForeignKey(community,on_delete=models.CASCADE)    
+    def __str__(self):
+        return f'notification of {self.post.title}'
     
 
 # class invitationN(Notification):
