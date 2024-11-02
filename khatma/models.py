@@ -1,6 +1,8 @@
 from django.db import models
 from api.models import MyUser
 from django.utils import timezone
+from community.models import upload_to
+
 
 class khatmaGroupManager(models.Manager):
     def create_khatmaGroup(self,name,members,**extra):
@@ -10,7 +12,7 @@ class khatmaGroupManager(models.Manager):
                 KG = self.model(name=name,icon=icon)
             else:
                 KG = self.model(name=name)
-            KG.save()
+            KG.save(using=self._db)
             # for i in members:
                 # khatmaGroupMembership.objects.create(user=user)
             KG.members.set(members)
@@ -36,16 +38,13 @@ class KhatmaManager(models.Manager): # khatma model manager (create,delet,update
         return khatma.khatmaGroup.members.all()
 
 
-def upload_to(instance, filename):
-    return 'KGImg/{filename}'.format(filename=filename)
-
-
 class khatmaGroup(models.Model):
     name = models.CharField(max_length=40,unique=True)
-    icon = models.ImageField(upload_to=upload_to,serialize=True)
+    icon = models.ImageField(upload_to=upload_to(f'{name}','KGImg'),serialize=True)
     members = models.ManyToManyField(MyUser,through="khatmaGroupMembership",related_name="khatmaGroup")
     bio = models.CharField(max_length=290,default='BIO')    
     objects = khatmaGroupManager()
+
     def __str__(self):
         return self.name
 
@@ -97,14 +96,4 @@ class khatmaMembership(models.Model):
     def __str__(self):
         name = f"{self.khatmaGroupMembership} in {self.khatma.name}" 
         return name
-
-
-class hizbsList(models.Model):
-    name = models.CharField(max_length=50,unique=True)
-    desc = models.CharField(max_length=150,unique=True)
-
-
-class thomonList(models.Model): # athman is a unit of quran (one hizb is 8 thomon)
-    name = models.CharField(max_length=50,unique=True)
-    desc = models.CharField(max_length=150,unique=True)
 

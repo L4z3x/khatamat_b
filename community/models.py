@@ -1,13 +1,51 @@
 from django.db import models
 from api.models import MyUser
 from django.utils import timezone
+from func import upload_to
+
+
+class communityManager(models.Manager):
+
+    def create(self,admin,name,**extra):
+        if admin:
+            com = self.model(name=name)
+            for key, value in extra.items():
+                setattr(com, key, value)
+            com.save(using=self._db)
+        return com
+    def update(self,id,**extra):
+        try:
+            com = community.objects.get(id=id)
+        except Exception as e:
+            return ValueError('community with this id cannot be found !')
+        for key, value in extra.items():
+            setattr(com, key, value)
+        com.save()
+        return com
+    
+    def delete(self,id):
+        try:
+            com = community.objects.get(id=id)
+        except Exception as e:
+            return ValueError('community with this id cannot be found !')
+        com.delete()
+        return 
+    
+    def retreive(self,id):
+        try:
+            com = community.objects.get(id=id)
+        except Exception as e:
+            raise ValueError('community with this id cannot be found !')
+        return com
 
 
 class community (models.Model):
-    name = models.CharField(max_length=20,null=False)
+    name = models.CharField(max_length=20,null=False,unique=True)
     members = models.ManyToManyField(MyUser,through="communityMembership")
-    bio = models.TextField()
+    picture = models.ImageField(upload_to=upload_to('communityIMG',f'{name}'),null=True)
+    bio = models.TextField(null=True)
 
+    objects = communityManager()
     def __str__(self):
         return self.name
 
@@ -19,10 +57,6 @@ class communityMembership(models.Model):
 
     def __str__(self):
         return f'{self.user} in {self.community}'
-
-
-def upload_to(folder,filename):
-    return f'{folder}/{filename}'.format(filename=filename)
 
 
 class post(models.Model):
