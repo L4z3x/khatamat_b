@@ -44,7 +44,7 @@ class MyUser(AbstractBaseUser,PermissionsMixin):
     profilePic = models.ImageField(upload_to=upload_to(f'{username}','profilePic'),default='<django.db.models.fields.CharField>/profilePic/default.png',null=True)
     khatmasNum = models.IntegerField(default=0)
     brothersNum = models.IntegerField(default=0)
-    brothers = models.ManyToManyField('self',symmetrical=True, through='brothership')
+    brothers = models.ManyToManyField('self',symmetrical=False, through='brothership',related_name='brothers_set')
     private = models.BooleanField(default=False,null=False)
     # blocked = models.ManyToManyField('self',symmetrical=False) to be rethinked with it's views
 
@@ -90,6 +90,11 @@ class brothership(models.Model):
             raise ValueError("This brothership already exists in reverse.")
 
     def save(self, *args, **kwargs):
-        self.clean()
+        # self.clean()
         super().save(*args, **kwargs)
-
+        
+    
+    
+    def delete(self, *args, **kwargs):
+        brothership.objects.filter(user1=self.user2, user2=self.user1).delete()
+        super().delete(*args,**kwargs)

@@ -9,5 +9,6 @@ urlpatterns = [
     path("delete/<int:id>/", views.DeleteUserapi.as_view(), name="delete-user"),
     path("retreive/<int:id>/", views.ListUserapi.as_view(), name="retreive-user"),
     path("retreive-all/", views.ListUserapi.as_view(), name="retreive-all-users"),
+    path("list-brother/",views.brother.as_view(),name="get user's brothers"),
 
 ]  
