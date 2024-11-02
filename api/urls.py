@@ -9,5 +9,5 @@ urlpatterns = [
     path("delete/<int:id>/", views.DeleteUserapi.as_view(), name="delete-user"),
     path("retreive/<int:id>/", views.ListUserapi.as_view(), name="retreive-user"),
     path("retreive-all/", views.ListUserapi.as_view(), name="retreive-all-users"),
-    path("join-request/", views.create_JoinRequest.as_view(), name="send-join-request"),
+
 ]  
