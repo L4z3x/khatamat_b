@@ -7,6 +7,7 @@ from rest_framework.decorators import api_view,permission_classes
 from khatma.models import khatmaGroup
 from rest_framework.response import Response
 from .serializers import *
+from api.serializers import brotherDataSer
 from rest_framework.generics import RetrieveAPIView 
 
 
@@ -74,27 +75,31 @@ def send_brothershipReq(request):
 def accept_brothershipReq(request):
     user = request.user
     serializer = brothershipSerializer(data= request.data)
+    print(user.pk)
     if serializer.is_valid() and user:
         data = serializer.validated_data
         id = data.get('id')
         requester = MyUser.objects.get(id=id) # add whatever you want to send from the client side
+        print(requester.pk)
         try:
-            br =  brothershipRequest.objects.get(owner= requester,brother=user,status="pending") # check for the brothership request
-        except:
-            return Response(data={"error":"brothershipRequest not found"},status= status.HTTP_404_NOT_FOUND)
+            br =  brothershipRequest.objects.get(owner=requester.pk,brother=user.pk) # check for the brothership request
+            print(br)
+        except Exception as e:
+            return Response(data={"error":f"brothershipRequest not found ###{e}"},status= status.HTTP_404_NOT_FOUND)
         if br:
-            if not brothership.objects.get(user1=requester,user2=user).exist():
-                new_brothership = brothership.objects.create(user1=requester,user2=user) # create a new brothership
-                new_brothership.save()
-                br.status = "accepted"
-                br.save()
-            else:
-                return Response(status=status.HTTP_302_FOUND)
-        return Response(status=status.HTTP_201_CREATED)
+            if brothership.objects.filter(user1=requester,user2=user).exists() or brothership.objects.filter(user1=user,user2=requester).exists():
+                return Response(data={"error":"you are already brothers"},status=status.HTTP_302_FOUND)
+            
+            new_brothership = brothership.objects.create(user1=requester,user2=user) # create a new brothership
+            new_brothership.save()
+            br.status = "accepted"
+            br.save()
+            return Response(data={"msg":f"{br.__str__()}"},status=status.HTTP_201_CREATED)
+        return Response(data={"error":f"brothershipRequest not found"},status= status.HTTP_404_NOT_FOUND)
     return Response(status=status.HTTP_400_BAD_REQUEST,data=serializer.errors)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated]) # /* add status to brothership request serialiazer and view *
 def list_brothershipReq(request):
     user = MyUser.objects.get(username=request.user)
     print(user)
@@ -104,27 +109,20 @@ def list_brothershipReq(request):
         rec_data = []
         for r in req:
             receiver = r.owner
-            serializer = brothershipReqDataSer(receiver).data
+            serializer = brotherDataSer(receiver).data
             serializer['since']= r.created_at
             if receiver == user:
                 sen_data.append(serializer)
             else:
                 rec_data.append(serializer)
-        print(sen_data)
-        print(rec_data)
-        req2 = user.incoming_brothership_req.all()
-        print(req2)
-       
     except Exception as e:
         return Response(data={"error":f"{e}"},status=status.HTTP_404_NOT_FOUND)
-    print(req)
-        
-    try:
-        serializer = brothershipReqSerialiazer(req,many=True)
-        
-    except:
-        return Response(data=serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     return Response(data={"recieved":rec_data,"sent":sen_data},status=status.HTTP_200_OK)
+    
+@api_view(['POST'])   
+@permission_classes([IsAuthenticated])
+def deny_brothership(request):
+    user = request.user
     
 
 
