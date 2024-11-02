@@ -45,6 +45,9 @@ class MyUser(AbstractBaseUser,PermissionsMixin):
     khatmasNum = models.IntegerField(default=0)
     brothersNum = models.IntegerField(default=0)
     brothers = models.ManyToManyField('self',symmetrical=True, through='brothership')
+    private = models.BooleanField(default=False,null=False)
+    # blocked = models.ManyToManyField('self',symmetrical=False) to be rethinked with it's views
+
 
     objects = MyUserManager()
     USERNAME_FIELD = 'username'
@@ -89,3 +92,4 @@ class brothership(models.Model):
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
+
