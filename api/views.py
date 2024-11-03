@@ -3,7 +3,6 @@ from .models import MyUser,brothership
 from rest_framework import status 
 from .serializers import *
 from rest_framework.decorators import api_view,permission_classes
-from notification.serializers import brothershipSerializer
 from rest_framework.response import Response
 
 from rest_framework.permissions import IsAuthenticated,AllowAny
@@ -30,35 +29,38 @@ class CreateUserapi(generics.CreateAPIView):
         return self.create(request)
 
 
-class UpdateUserapi(generics.UpdateAPIView):
+class UpdateUserapi(): # set it manually cause it doesn't work
     queryset = MyUser.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]
-    lookup_field = 'id'
+    permission_classes = [IsAuthenticated]
 
-    def put(self,request,id = None):
-        return self.partial_update(request,id)
+    def put(self,request):
+        return self.partial_update(request,request.user.pk)
 
 
 class DeleteUserapi(generics.DestroyAPIView):
     queryset = MyUser.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     lookup_field = 'id'
 
     def delete(self,request,id = None):
         if id:
-            return self.destroy(request,id)
+            user = MyUser.object.get(id=id)
+            if request.user == user:
+                return self.destroy(request,id)
+            return Response(status=status.HTTP_400_BAD_REQUEST,data={"error":"id doesn't match the sender's"})
         else:
             return Response('No id specified',status=status. HTTP_400_BAD_REQUEST)
 
 
 class brother(views.APIView):
     permission_classes = [IsAuthenticated]
-    def get(self,request): # get brothers
+    lookup_field = 'id'
+    def get(self,request,id): # get brothers
         user = request.user
-        if request.GET.get('id'):
-            brother = MyUser.objects.get(id=request.GET.get('id'))
+        if id:
+            brother = MyUser.objects.get(id=id)
             if user.private == True: # add private to user model default is False
                 if not user in brother.brothers:
                     return Response(data={"msg":"private accounte"},status=status.HTTP_302_FOUND)
@@ -74,6 +76,22 @@ class brother(views.APIView):
     def post(self,request,format=None):
         user = request.user
         pass
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def updateUser(request):
+    user = request.user
+    data = request.data
+    print(data)
+    if data:
+        for key, value in data.items():
+            if hasattr(user,key):
+                setattr(user, key, value)
+        if 'profilePic' in request.FILES:
+            user.profilePic = request.FILES['profilePic']
+        user.save()
+        return Response(status=status.HTTP_202_ACCEPTED,data={"msg":"updated succesfully"})
+    return Response(status=status.HTTP_400_BAD_REQUEST,data={"msg":"no data"})
 
 
 @api_view(['POST'])
