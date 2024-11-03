@@ -16,101 +16,97 @@ from rest_framework.generics import RetrieveAPIView
 # tested and working >>> send multiple join requests to admins of a khatma group
 class create_JoinRequest(views.APIView):
     permission_classes = [IsAuthenticated]
-    def post(self,request,format=None):
-        serailizer = joinRequestSerializer(data= request.data) 
-        if serailizer.is_valid():
+    lookup_field = 'group_name'
+    def post(self,request,group_name,format=None): # to be updated more to handle more errors.
+        if group_name:
             user = request.user
-            data = serailizer.validated_data
             try:
-                khatmagroup = khatmaGroup.objects.get(name=data['G_name'])
+                khatmagroup = khatmaGroup.objects.get(name=group_name)
             except:
                 return Response(data={"error":"khatma group not found"},status=status.HTTP_404_NOT_FOUND)
-            ownersMem = khatmagroup.khatma_G_membership.filter(role="admin")
-            owners = ownersMem.values_list("user",flat=True)
-            print(owners)
+            adminsMem = khatmagroup.khatma_G_membership.filter(role="admin")
+            print(adminsMem)
+            senders = adminsMem.values_list("user",flat=True)
+            print(senders)
             admins =[]
-            for i in owners:
+            for i in senders:
+                print(i)
                 try:
-                    owner = MyUser.objects.get(id=i)
-                    join_req = joinRequest.objects.get(owner=owner,user=user,khatmaGroup=khatmagroup)
+                    sender = MyUser.objects.get(id=i)
+                    join_req = joinRequest.objects.get(sender=sender,receiver=user,khatmaGroup=khatmagroup)
                 except:
                     join_req = None
                 if not join_req:
-                    joinrequest = joinRequest.objects.create(owner=owner,user=user,khatmaGroup=khatmagroup)
+                    joinrequest = joinRequest.objects.create(sender=sender,receiver=user,khatmaGroup=khatmagroup)
                     joinrequest.save()
-                    admins += joinrequest.owner.username
-                else:
-                    pass
+                    admins.append(joinrequest.sender.username)
                 if not admins:
                     return Response(data={"msg":"requset already sent"},status=status.HTTP_208_ALREADY_REPORTED)
                 else:
-                    return Response(data={"admins":f"{len(admins)}"},status=status.HTTP_201_CREATED)
+                    print(admins)
+                    return Response(data={"msg":"request sent","admins":f"{len(admins)}"},status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def send_brothershipReq(request):
-    serializer = brothershipSerializer(data=request.data)
-    user = request.user
-    if serializer.is_valid() and user:
-        data = serializer.validated_data
-        id = data.get('id')
+def send_brothershipReq(request,id):
+    sender = request.user
+    if id:
         try:
-            brother = MyUser.objects.get(id=id)
-            if brother == user:
+            receiver = MyUser.objects.get(id=id)
+            if receiver == sender: # just for fun ;)
                 return Response(status=status.HTTP_406_NOT_ACCEPTABLE,data={"error":"user connot be brother with himself !!!"})
+            # check if they are brothers already
+            if brothership.objects.filter(user1=sender,user2=receiver).exists() or brothership.objects.filter(user1=receiver,user2=sender).exists():
+                return Response(data={"error":"you are already brothers"},status=status.HTTP_302_FOUND)
             try:
-                br = brothershipRequest.objects.create(owner=user,brother=brother,status='pending')
+                br = brothershipRequest.objects.create(sender=sender,receiver=receiver,status='pending')
                 br.save()
             except Exception as e:
                 return Response(status=status.HTTP_208_ALREADY_REPORTED,data={f"error":f"{e}"})
         except:
             return Response(data={"error":"this user doesn't exist"},status=status.HTTP_404_NOT_FOUND)
-        return Response(data={"msg":f"brothership Request sent to {brother.username}"},status=status.HTTP_201_CREATED)
+        return Response(data={"msg":f"brothership Request sent to {receiver.username}"},status=status.HTTP_201_CREATED)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def accept_brothershipReq(request):
+def accept_brothershipReq(request,id):
     user = request.user
-    serializer = brothershipSerializer(data= request.data)
-    print(user.pk)
-    if serializer.is_valid() and user:
-        data = serializer.validated_data
-        id = data.get('id')
-        requester = MyUser.objects.get(id=id) # add whatever you want to send from the client side
-        print(requester.pk)
+    if id:
+        sender = MyUser.objects.get(id=id) # add whatever you want to send from the client side
+        print(sender.pk)
         try:
-            br =  brothershipRequest.objects.get(owner=requester.pk,brother=user.pk) # check for the brothership request
+            br =  brothershipRequest.objects.get(sender=sender,receiver=user) # check for the brothership request
             print(br)
         except Exception as e:
             return Response(data={"error":f"brothershipRequest not found ###{e}"},status= status.HTTP_404_NOT_FOUND)
         if br:
-            if brothership.objects.filter(user1=requester,user2=user).exists() or brothership.objects.filter(user1=user,user2=requester).exists():
+            if brothership.objects.filter(user1=sender,user2=user).exists() or brothership.objects.filter(user1=user,user2=sender).exists():
                 return Response(data={"error":"you are already brothers"},status=status.HTTP_302_FOUND)
             
-            new_brothership = brothership.objects.create(user1=requester,user2=user) # create a new brothership
+            new_brothership = brothership.objects.create(user1=sender,user2=user) # create a new brothership
             new_brothership.save()
             br.status = "accepted"
             br.save()
-            return Response(data={"msg":f"{br.__str__()}"},status=status.HTTP_201_CREATED)
+            return Response(data={"msg":f"{sender.username} accepted"},status=status.HTTP_201_CREATED)
         return Response(data={"error":f"brothershipRequest not found"},status= status.HTTP_404_NOT_FOUND)
-    return Response(status=status.HTTP_400_BAD_REQUEST,data=serializer.errors)
+    return Response(status=status.HTTP_400_BAD_REQUEST,data={"error":"no id was passed with the url"})
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated]) # /* add status to brothership request serialiazer and view *
 def list_brothershipReq(request):
-    user = MyUser.objects.get(username=request.user)
-    print(user)
+    user = request.user
     try:
-        req = brothershipRequest.objects.filter(owner=user) | brothershipRequest.objects.filter(brother=user)
+        req = brothershipRequest.objects.filter(sender=user,status='pending') | brothershipRequest.objects.filter(receiver=user,status='pending')
         sen_data= []        
         rec_data = []
         for r in req:
-            receiver = r.owner
+            receiver = r.sender
             serializer = brotherDataSer(receiver).data
             serializer['since']= r.created_at
+            serializer['id'] = r.pk
             if receiver == user:
                 sen_data.append(serializer)
             else:
@@ -121,10 +117,26 @@ def list_brothershipReq(request):
     
 @api_view(['POST'])   
 @permission_classes([IsAuthenticated])
-def deny_brothership(request):
+def deny_brothershipReq(request,id):
     user = request.user
-    
+    try:
+        br = brothershipRequest.objects.get(id=id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"no brothership request with associated with that id"})
+    if br.receiver == user:
+        br.status = 'rejected'
+        br.save()
+        return Response(status=status.HTTP_202_ACCEPTED,data={"msg":"the brothership req was rejected succesfully"})
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE,data={"msg":"the request was not meant for you"})
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def accept_joinReq(request,id):
+    # user = request.user
+    # try:
+    #     receiver = MyUser.objects.get(id=id)
+        
 
 # @api_view(['GET'])
 # @permission_classes([IsAuthenticated])

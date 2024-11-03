@@ -5,9 +5,6 @@ class joinRequestSerializer(serializers.Serializer): # c est pas comme ca aaah ?
     G_name = serializers.CharField(max_length=40)
 
 
-class brothershipSerializer(serializers.Serializer): # c est pas comme ca aaah ???!!!
-    id = serializers.IntegerField()
-
 
 class brothershipReqSerialiazer(serializers.ModelSerializer):
 

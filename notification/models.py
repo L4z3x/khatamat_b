@@ -14,7 +14,7 @@ class Notification(models.Model):
         ("accepted","accepted"),
         ("rejected","rejected"),
     ]
-    owner = models.ForeignKey(MyUser,on_delete=models.CASCADE,null=False)
+    sender = models.ForeignKey(MyUser,on_delete=models.CASCADE,null=False)
     status = models.CharField(max_length=10,choices=STATUS,default="unread")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -24,14 +24,14 @@ class Notification(models.Model):
 
 
 class joinRequest(Notification):
-    user = models.ForeignKey(MyUser,on_delete=models.CASCADE,null=False,related_name="incoming_join_req")
-    community = models.ForeignKey(community,on_delete=models.CASCADE,null=True)    
+    receiver = models.ForeignKey(MyUser,on_delete=models.CASCADE,null=False,related_name="incoming_join_req")
+    khatmaGroup = models.ForeignKey(khatmaGroup,on_delete=models.CASCADE,null=False)    
     
     class Meta:
-        unique_together =  [("user","community","owner")]
+        unique_together =  [("receiver","khatmaGroup","sender")]
    
     def __str__(self):
-        return f" R:from {self.user} to {self.owner} in {self.community}"
+        return f" R:from {self.sender} to {self.receiver} in {self.khatmaGroup}"
 
 
 class messageN(Notification):
@@ -42,7 +42,7 @@ class messageN(Notification):
         return f'{self.message} in {self.khatmaGroup}'
 
 
-class postN(Notification):
+class postN(Notification): # to be rethinked more and more ...
     post = models.ForeignKey(post,on_delete=models.CASCADE)
     community = models.ForeignKey(community,on_delete=models.CASCADE)    
     def __str__(self):
@@ -53,10 +53,10 @@ class postN(Notification):
 #     invitation = models.ForeignKey(invitation)
 
 class brothershipRequest(Notification):
-    brother = models.ForeignKey(MyUser,on_delete=models.CASCADE,related_name='incoming_brothership_req')
+    receiver = models.ForeignKey(MyUser,on_delete=models.CASCADE,related_name='incoming_brothership_req')
     class Meta:
-        unique_together = [("brother","owner")]
+        unique_together = [("receiver","sender")]
 
     def __str__(self):
-        return f"{self.owner.username} to {self.brother.username}"
+        return f"{self.sender.username} to {self.receiver.username}"
     
