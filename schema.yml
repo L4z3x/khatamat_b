@@ -1,0 +1,534 @@
+openapi: 3.0.3
+info:
+  title: GHARIB
+  version: 0.0.0
+paths:
+  /api/block-brother/{id}/:
+    post:
+      operationId: api_block_brother_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/delete-brother/{id}/:
+    post:
+      operationId: api_delete_brother_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/delete/{id}/:
+    delete:
+      operationId: delete_user_account
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/list-blocked/:
+    get:
+      operationId: get_blocked_list
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/brotherDataSer'
+          description: ''
+  /api/list-brother/:
+    get:
+      operationId: get_user_brother_list
+      summary: get brother list
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/list-brother/{id}/:
+    get:
+      operationId: get_user_brother_list_2
+      summary: get brother list
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/login/:
+    post:
+      operationId: api_login_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/mutual-brother/{id}/:
+    get:
+      operationId: get_mutual_brothers
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/brotherDataSer'
+          description: ''
+  /api/refreshtoken/:
+    post:
+      operationId: api_refreshtoken_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/retreive-all/:
+    get:
+      operationId: get_user_list
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: ''
+  /api/retreive/{id}/:
+    get:
+      operationId: get_user_list_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: ''
+  /api/signup/:
+    post:
+      operationId: create_user_account
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/update/:
+    post:
+      operationId: update_user
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/brotherDataSer'
+          description: ''
+  /khatma/add-member-k/:
+    post:
+      operationId: khatma_add_member_k_create
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /khatma/add-member-kg/:
+    post:
+      operationId: khatma_add_member_kg_create
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /khatma/create/:
+    get:
+      operationId: khatma_create_retrieve
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: khatma_create_create
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /khatma/create-khatma-group/:
+    post:
+      operationId: khatma_create_khatma_group_create
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /khatma/retreive/{kh_name}/:
+    get:
+      operationId: get_khatma
+      parameters:
+      - in: path
+        name: kh_name
+        schema:
+          type: string
+        required: true
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/khatma'
+          description: ''
+  /notification/accept-br-req/{id}/:
+    post:
+      operationId: notification_accept_br_req_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - notification
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /notification/accept-join-req/{id}/:
+    post:
+      operationId: notification_accept_join_req_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - notification
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /notification/deny-br-req/{id}/:
+    post:
+      operationId: notification_deny_br_req_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - notification
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /notification/list-br-req/:
+    get:
+      operationId: notification_list_br_req_retrieve
+      tags:
+      - notification
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/brotherDataSer'
+          description: ''
+  /notification/send-br-req/{id}/:
+    post:
+      operationId: notification_send_br_req_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - notification
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /notification/send-join-req/{group_name}/:
+    post:
+      operationId: notification_send_join_req_create
+      parameters:
+      - in: path
+        name: group_name
+        schema:
+          type: string
+        required: true
+      tags:
+      - notification
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    CountryEnum:
+      enum:
+      - Algeria
+      type: string
+      description: '* `Algeria` - DZ'
+    GenderEnum:
+      enum:
+      - male
+      - female
+      type: string
+      description: |-
+        * `male` - M
+        * `female` - F
+    TokenObtainPair:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - password
+      - refresh
+      - username
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        fullname:
+          type: string
+          maxLength: 30
+        username:
+          type: string
+          maxLength: 20
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+          maxLength: 128
+        gender:
+          $ref: '#/components/schemas/GenderEnum'
+        country:
+          $ref: '#/components/schemas/CountryEnum'
+        profilePic:
+          type: string
+          format: uri
+          nullable: true
+        date_joined:
+          type: string
+          format: date-time
+      required:
+      - id
+      - password
+    brotherDataSer:
+      type: object
+      properties:
+        id:
+          type: integer
+        img:
+          type: string
+          format: uri
+        username:
+          type: string
+          maxLength: 20
+      required:
+      - id
+      - img
+      - username
+    khatma:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 20
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        G_name:
+          type: string
+          maxLength: 40
+      required:
+      - G_name
+      - endDate
+      - name
+      - startDate
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
