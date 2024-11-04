@@ -10,3 +10,4 @@ python-dotenv
 pytz
 sqlparse==0.5.0
 pillow
+drf-spectacular
