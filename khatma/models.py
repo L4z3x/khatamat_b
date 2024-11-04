@@ -54,7 +54,7 @@ class khatmaGroupMembership(models.Model):
         ("admin","admin"),
         ("user","user"),
     ]
-    
+    since = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(MyUser,on_delete=models.CASCADE)
     khatmaGroup = models.ForeignKey(khatmaGroup,on_delete=models.CASCADE,related_name="khatma_G_membership")
     role = models.CharField(default="admin",max_length=6,choices=ROLE,blank=False)
@@ -67,8 +67,8 @@ class Khatma(models.Model):    # khatma instance created by a khatmaGroup Admin
     # model Fields
     name = models.CharField(max_length=20,null=False)
     khatmaGroup = models.ForeignKey(khatmaGroup,on_delete=models.CASCADE,null=False,default=None)
-    start_Date = models.DateTimeField(null=False)
-    end_Date = models.DateTimeField(null=False)#,default=timezone.datetime(2024, 10, 29, 10, 11, 45, 187116)) # required, not null
+    startDate = models.DateTimeField(null=False)
+    endDate = models.DateTimeField(null=False)#,default=timezone.datetime(2024, 10, 29, 10, 11, 45, 187116)) # required, not null
     intentions = models.CharField(max_length=180,default=None) # required , not null provide choices
     duaa = models.CharField(max_length=180,default=None) # required , not null provide choices
 
