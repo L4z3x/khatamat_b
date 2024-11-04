@@ -1,4 +1,4 @@
-no auth: ? require tokens
+no auth:  do not require bearer token
   - refresh token : /api/refreshtoken/
     - expects: POST, refreshToken
     - returns: access token
@@ -30,9 +30,12 @@ auth:
     expects: GET,id of brother
     returns: list of brothers's username,profilePic,id
 notification:
-  - send join request to a khatma group :  notification/send-join-request/<string>/
-    expects: POST, name of khatmagroup admins
+  - send join request to a khatma group :  notification/send-join-req/<string>/
+    expects: POST, name of khatmagroup admins in string
     returns: 201
+  - accepts join request to a khatma group: notification/accept-join-req/<int>/
+    expects: POST, id of brother in int, "g_name" as khatma group name in data section
+    returns: 202
   - send brothership request to a user: notification/send-br-req/<int>/
     expects: POST,id of brother in <int>
     returns: 201
@@ -41,6 +44,11 @@ notification:
     returns: 201
   - list brothership request: notification/list-br-req/
     expects: GET
-    returns: a list of brothership reqs splited into received and sent
-    // TODO: add pending ,suggestion 
-    
+    returns: a list of brothership reqs splited into received and pending 
+  - accept brother request: notification/accept-br-req/<int>/
+    expects: POST,id of brother
+    returns: 202
+  - deny brther request: deny-br-req/<int:id>/
+    expects: POST,id of brother
+    returns: 202
+  - 
