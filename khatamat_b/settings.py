@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_spectacular',
     'rest_framework_simplejwt',
     'corsheaders',
     'api',
@@ -46,13 +47,21 @@ INSTALLED_APPS = [
     'community',
     'khatma',
 ]
+
 REST_FRAMEWORK={
      'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES':[
         'rest_framework.permissions.IsAuthenticated',
-    ]
+    ],
+    "DEFAULT_SCHEMA_CLASS":"drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS={
+    "TITLE":"GHARIB",
+    'OPERATION_ID_GENERATOR': 'drf_spectacular.utils.simple_operation_id_generator',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 SIMPLE_JWT={
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
