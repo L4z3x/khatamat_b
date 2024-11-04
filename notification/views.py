@@ -4,11 +4,11 @@ from api.models import MyUser,brothership
 from notification.models import joinRequest,brothershipRequest
 from rest_framework import views,status
 from rest_framework.decorators import api_view,permission_classes
-from khatma.models import khatmaGroup
+from khatma.models import khatmaGroup,khatmaGroupMembership
 from rest_framework.response import Response
 from .serializers import *
 from api.serializers import brotherDataSer
-from rest_framework.generics import RetrieveAPIView 
+from drf_spectacular.utils import extend_schema
 
 
 
@@ -17,8 +17,9 @@ from rest_framework.generics import RetrieveAPIView
 class create_JoinRequest(views.APIView):
     permission_classes = [IsAuthenticated]
     lookup_field = 'group_name'
+    
     def post(self,request,group_name,format=None): # to be updated more to handle more errors.
-        if group_name:
+        if group_name and len(group_name) < 50:
             user = request.user
             try:
                 khatmagroup = khatmaGroup.objects.get(name=group_name)
@@ -44,7 +45,7 @@ class create_JoinRequest(views.APIView):
                     return Response(data={"msg":"requset already sent"},status=status.HTTP_208_ALREADY_REPORTED)
                 else:
                     print(admins)
-                    return Response(data={"msg":"request sent","admins":f"{len(admins)}"},status=status.HTTP_201_CREATED)
+                    return Response(data={"msg":"request sent","admins number":f"{len(admins)}"},status=status.HTTP_201_CREATED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
 
@@ -94,6 +95,8 @@ def accept_brothershipReq(request,id):
         return Response(data={"error":f"brothershipRequest not found"},status= status.HTTP_404_NOT_FOUND)
     return Response(status=status.HTTP_400_BAD_REQUEST,data={"error":"no id was passed with the url"})
 
+
+@extend_schema(responses=brotherDataSer)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated]) # /* add status to brothership request serialiazer and view *
 def list_brothershipReq(request):
@@ -115,7 +118,11 @@ def list_brothershipReq(request):
         return Response(data={"error":f"{e}"},status=status.HTTP_404_NOT_FOUND)
     return Response(data={"recieved":rec_data,"sent":sen_data},status=status.HTTP_200_OK)
     
-@api_view(['POST'])   
+@api_view(['POST'])
+@extend_schema(
+    operation_id="deny_brothership_request",
+    responses={200: 'Success'}
+)
 @permission_classes([IsAuthenticated])
 def deny_brothershipReq(request,id):
     user = request.user
@@ -133,20 +140,42 @@ def deny_brothershipReq(request,id):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def accept_joinReq(request,id):
-    # user = request.user
-    # try:
-    #     receiver = MyUser.objects.get(id=id)
-        
-
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def list_brothership(request):
-#     user = request.user
-#     if request.GET.get('id'):
-#         user = MyUser.objects.get(id=id)
-#     else :
-#         user = request.user        
+    user = request.user
     
-#     print(id)
-#     print(user.username)
-#     return Response(status=status.HTTP_400_BAD_REQUEST)
+    serializer = joinRequestSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(status=status.HTTP_400_BAD_REQUEST,data=serializer.errors)
+    else:
+        name = serializer.validated_data['g_name']
+
+    # check sender
+    try:
+        sender = MyUser.objects.get(id=id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"id of sender not found"})
+
+    # check khatma group existance
+    try:
+        kh_group = khatmaGroup.objects.get(name=name)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"khatma group not found"})
+
+    # check if user is admin of that khatma group 
+    if not khatmaGroupMembership.objects.filter(user=user,khatmaGroup=kh_group,role="admin").exists():    
+        return Response(status=status.HTTP_401_UNAUTHORIZED,data={"error":"your not admin of this khatma group"})
+
+    try:
+        join_req = joinRequest.objects.get(sender=sender,receiver=user,status="pending")
+    except:
+        if joinRequest.objects.filter(sender=sender,receiver=user,status="accepted").exists():
+            return Response(status=status.HTTP_302_FOUND,data={"msg":"join request already accepted"})
+        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"join request not found"})
+    
+    join_req.status = "accepted"
+    join_req.save()
+    
+    new_kh_g_Membership = khatmaGroupMembership.objects.create(user=sender,role="user",khatmaGroup=kh_group)
+    new_kh_g_Membership.save()
+
+    return Response(status=status.HTTP_202_ACCEPTED,data={"msg":f"accepted join request from {sender.username} to {kh_group.name}"})
+

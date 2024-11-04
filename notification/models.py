@@ -24,12 +24,15 @@ class Notification(models.Model):
 
 
 class joinRequest(Notification):
+    
     receiver = models.ForeignKey(MyUser,on_delete=models.CASCADE,null=False,related_name="incoming_join_req")
     khatmaGroup = models.ForeignKey(khatmaGroup,on_delete=models.CASCADE,null=False)    
-    
+    # to identify the admin who accepted the join request
+    acceptor = models.ForeignKey(MyUser,on_delete=models.DO_NOTHING,null=True,related_name="acceptor_joinRequest")
+
     class Meta:
         unique_together =  [("receiver","khatmaGroup","sender")]
-   
+    
     def __str__(self):
         return f" R:from {self.sender} to {self.receiver} in {self.khatmaGroup}"
 
