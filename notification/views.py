@@ -119,10 +119,6 @@ def list_brothershipReq(request):
     return Response(data={"recieved":rec_data,"sent":sen_data},status=status.HTTP_200_OK)
     
 @api_view(['POST'])
-@extend_schema(
-    operation_id="deny_brothership_request",
-    responses={200: 'Success'}
-)
 @permission_classes([IsAuthenticated])
 def deny_brothershipReq(request,id):
     user = request.user
