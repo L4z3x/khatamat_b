@@ -6,7 +6,7 @@ class khatmaSerializer(serializers.ModelSerializer):
     G_name = serializers.CharField(max_length=40)
     class Meta:
         model = Khatma
-        fields = ["name","period","G_name"]
+        fields = ["name","startDate","endDate","G_name"]
 
 
 class khatmaGroupSerializer(serializers.ModelSerializer):
