@@ -114,15 +114,18 @@ WSGI_APPLICATION = 'khatamat_b.wsgi.application'
 
 AUTH_USER_MODEL  = 'api.MyUser'
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'khatamat',
-        'USER': '',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.environ.get("POSTGRES_DB"),
+        'USER': os.environ.get("POSTGRES_USER"),
+        'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
+        'HOST': os.environ.get("POSTGRES_HOST"),
+        'PORT': os.environ.get("POSTGRES_PORT", '5432'),
     }
 }
+
 GRAPH_MODELS = {
   'all_applications': True,
   'group_models': True,
@@ -156,7 +159,7 @@ USE_TZ = True
 MEDIA_ROOT = BASE_DIR / "files"
 
 MEDIA_URL = '/files/'
-
+POSTGRES_PORT
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR,'khatamat_front/build/static')
