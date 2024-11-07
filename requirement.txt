@@ -11,3 +11,6 @@ pytz
 sqlparse==0.5.0
 pillow
 drf-spectacular
+django-channels
+channels_redis
+django-channels-jwt
