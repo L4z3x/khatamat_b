@@ -32,6 +32,8 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -110,20 +112,39 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'khatamat_b.wsgi.application'
+# WSGI_APPLICATION = 'khatamat_b.wsgi.application'
+ASGI_APPLICATION = 'khatamat_b.asgi.application'
 
 AUTH_USER_MODEL  = 'api.MyUser'
 
 
+POSTGRES_DB = os.environ.get("POSTGRES_DB") or 'khatamat'
+POSTGRES_USER = os.environ.get("POSTGRES_USER") or ''
+POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD") or ''
+POSTGRES_HOST = os.environ.get("POSTGRES_HOST") or 'localhost'
+POSTGRES_PORT = os.environ.get("POSTGRES_PORT", '5432') or '5432'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("POSTGRES_DB"),
-        'USER': os.environ.get("POSTGRES_USER"),
-        'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
-        'HOST': os.environ.get("POSTGRES_HOST"),
-        'PORT': os.environ.get("POSTGRES_PORT", '5432'),
+        'NAME': POSTGRES_DB,
+        'USER': POSTGRES_USER,
+        'PASSWORD': POSTGRES_PASSWORD,
+        'HOST': POSTGRES_HOST,
+        'PORT': POSTGRES_PORT,
     }
+}
+
+REDIS_CHANNEL_PORT = os.environ.get("REDIS_CHANNEL_PORT") or '6379'
+REDIS_CHANNEL_HOST = os.environ.get("REDIS_CHANNEL_HOST")  or "127.0.0.1"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(REDIS_CHANNEL_HOST, REDIS_CHANNEL_PORT)],
+        },
+    },
 }
 
 GRAPH_MODELS = {
