@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from khatma.models import Khatma,khatmaGroup
+from khatma.models import *
 
 
 class khatmaSerializer(serializers.ModelSerializer):
@@ -26,3 +26,7 @@ class khatma_membSerializer(serializers.Serializer):
     KH_name = serializers.CharField(max_length=20)
     G_name = serializers.CharField(max_length=40)
     
+class messageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = message
+        fields = ['id', 'group', 'sender', 'message', 'created_at','updated_at']
