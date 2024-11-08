@@ -34,6 +34,7 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
     'daphne',
     'channels',
+    'channels_auth_token_middlewares',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
