@@ -39,8 +39,8 @@ class KhatmaManager(models.Manager): # khatma model manager (create,delet,update
 
 
 class khatmaGroup(models.Model):
-    name = models.CharField(max_length=40,unique=True)
-    icon = models.ImageField(upload_to=upload_to(f'{name}','KGImg'),serialize=True)
+    name = models.CharField(max_length=40)
+    icon = models.ImageField(upload_to=upload_to('khatmaGroupImage',f'{name}_{id}'),serialize=True)
     members = models.ManyToManyField(MyUser,through="khatmaGroupMembership",related_name="khatmaGroup")
     bio = models.CharField(max_length=290,default='BIO')    
     objects = khatmaGroupManager()
@@ -97,3 +97,12 @@ class khatmaMembership(models.Model):
         name = f"{self.khatmaGroupMembership} in {self.khatma.name}" 
         return name
 
+class message(models.Model):
+    sender = models.ForeignKey(khatmaGroupMembership,on_delete=models.CASCADE)
+    group = models.ForeignKey(khatmaGroup,on_delete=models.CASCADE)
+    message = models.TextField(max_length=400000,null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.id}: {self.sender.user} : {self.group} : {self.message[:40]}"
