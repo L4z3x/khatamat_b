@@ -14,10 +14,9 @@ class khatmaGroupManager(models.Manager):
   
 class khatmaGroup(models.Model):  
     name = models.CharField(max_length=40)
-    icon = models.ImageField(upload_to=upload_to('khatmaGroupImage',f'{name}_{id}'),serialize=True)
+    icon = models.ImageField(upload_to=upload_to('khatmaGroupImages',f'{name}_{id}'),serialize=True)
     members = models.ManyToManyField(MyUser,through="khatmaGroupMembership",related_name="khatmaGroup")
     description = models.CharField(max_length=290,default='BIO')    
-    private = models.BooleanField(default=False,null=False)
     
     objects = khatmaGroupManager()
     
@@ -38,13 +37,14 @@ class khatmaGroupSettings(models.Model): # settings related to khatma
         ("only_admins","only_admins"),
         ("custom","custom"),
     ]
-    
+
+    private = models.BooleanField(default=False,null=False)
     group = models.OneToOneField(khatmaGroup,on_delete=models.CASCADE,related_name="settings")
     canAddMember = models.CharField(max_length=12,default="all",choices=MemberChoices)
     canAddMember_custom = models.ManyToManyField(MyUser,related_name="canAddMember")
     canSendMessage = models.CharField(max_length=12,default="all",choices=MemberChoices)
     canSendMessage_custom = models.ManyToManyField(MyUser,related_name="canSendMessage")
-    All_can_suggest_khatma = models.BooleanField(default=True,null=False)  
+    All_can_launch_khatma = models.BooleanField(default=True,null=False)  
     
     def __str__(self):
         return f"{self.group.name} settings"
@@ -58,8 +58,7 @@ class khatmaGroupSettings(models.Model): # settings related to khatma
         for user in self.canAddMember_custom.all():
             if not user in self.group.members.all():
                 self.canAddMember_custom.remove(user)
-        
-    
+            
 class khatmaGroupMembership(models.Model): # users inside a khatma group
     ROLE = [
         ("admin","admin"),
@@ -72,7 +71,6 @@ class khatmaGroupMembership(models.Model): # users inside a khatma group
     def __str__(self):
         return f"{self.user} in {self.khatmaGroup} group"
 
-
 class message(models.Model):
     sender = models.ForeignKey(khatmaGroupMembership,on_delete=models.CASCADE)
     group = models.ForeignKey(khatmaGroup,on_delete=models.CASCADE)
@@ -84,7 +82,6 @@ class message(models.Model):
         return f"{self.id}: {self.sender.user} : {self.group} : {self.message[:40]}"
 
 # khatma section:
-
       
 class KhatmaManager(models.Manager): # khatma model manager (create,delet,update,list)
     def create_khatma(self, name, khatmaGroup,period):
@@ -103,6 +100,15 @@ class KhatmaManager(models.Manager): # khatma model manager (create,delet,update
         khatma = self.get(name=name)
         return khatma.khatmaGroup.members.all()
 
+SurahList = [
+        ("the cow","the cow"),
+     ]
+
+KhatmaStatusList = [
+        ("ongoing","ongoing"),
+        ("completed","completed"),
+        ("aborted","aborted"),
+]
 
 class Khatma(models.Model):    # khatma instance created by a khatmaGroup Admin
     
@@ -110,34 +116,58 @@ class Khatma(models.Model):    # khatma instance created by a khatmaGroup Admin
     launcher = models.ForeignKey(MyUser,on_delete=models.SET_NULL,null=True,related_name="launched_khatmas")  
     name = models.CharField(max_length=20,null=False)
     khatmaGroup = models.ForeignKey(khatmaGroup,on_delete=models.CASCADE,null=False,default=None)
-    startDate = models.DateTimeField(null=False)
-    endDate = models.DateTimeField(null=False)#,default=timezone.datetime(2024, 10, 29, 10, 11, 45, 187116)) # required, not null
+    endDate = models.DateTimeField(null=False)
     intentions = models.CharField(max_length=180,default=None) # required , not null provide choices
     duaa = models.CharField(max_length=180,default=None) # required , not null provide choices
+    startSurah = models.CharField(max_length=35,choices=SurahList)
+    startVerse = models.PositiveIntegerField(null=False,default=0)
+    endSurah = models.CharField(max_length=35,choices=SurahList) 
+    endVerse = models.PositiveIntegerField(null=False,default=0)
+    
+    progress = models.PositiveIntegerField(default=0,null=False)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = KhatmaManager()
+    
     class Meta:
         unique_together = [("name","khatmaGroup")]
-    objects = KhatmaManager()
+        
     def __str__(self):
         return f"{self.name} in {self.khatmaGroup}"
-
-
+    def save(self,*args,**kwargs):
+        super().save(*args,**kwargs)
+        total_membership = 0
+        total_progress = 0
+        for membership in khatmaMembership.objects.filter(khatma=self):
+            total_progress += membership.progress
+            total_membership += 1
+        self.progress = total_progress / total_membership
+        super().save(*args,**kwargs)
+        
 class khatmaMembership(models.Model):
-    SurahList = [
-        ("the Cow","the Cow"),
-     ]
+    
     khatmaGroupMembership = models.ForeignKey(khatmaGroupMembership,on_delete=models.CASCADE,null=False,default=None)   
     khatma = models.ForeignKey(Khatma,on_delete=models.CASCADE,null=False,default=None)
    
     startShareSurah = models.CharField(max_length=35,choices=SurahList)
-    startShareVerse = models.IntegerField()
+    startShareVerse = models.PositiveIntegerField(null=False,default=0)
     endShareSurah = models.CharField(max_length=35,choices=SurahList) 
-    endShareVerse = models.IntegerField() 
-
+    endShareVerse = models.PositiveIntegerField(null=False,default=0) 
+    currentSurah = models.CharField(max_length=35,choices=SurahList)
+    currentVerse = models.PositiveIntegerField(null=False,default=0)
+    
+    progress = models.PositiveIntegerField(default=0,null=False)
+    
+    finishDate = models.DateTimeField(null=True)
+    status = models.CharField(max_length=20,default="ongoing",choices=KhatmaStatusList)
+    
     class Meta:
         unique_together = [("khatma","khatmaGroupMembership")]
+    
     def __str__(self):
         name = f"{self.khatmaGroupMembership} in {self.khatma.name}" 
         return name
 
-
+    def save(self,*args,**kwargs):            
+        super().save()
