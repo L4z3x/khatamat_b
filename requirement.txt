@@ -14,3 +14,4 @@ drf-spectacular
 django-channels
 channels_redis
 django-channels-jwt
+daphne
