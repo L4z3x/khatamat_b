@@ -32,7 +32,8 @@ def update_message(group,userMem,text,id):
 class khatmaGroupConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = self.scope['user']
-        # check if user is authenticated .
+        # check if user is authenticated . just when using the query string jwt middleware
+        # to be removed in production 
         if self.user.is_authenticated == False:
             await self.close()    
 
