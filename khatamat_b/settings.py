@@ -67,7 +67,7 @@ SPECTACULAR_SETTINGS={
     'SERVE_INCLUDE_SCHEMA': False,
 }
 SIMPLE_JWT={
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=100),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=20),
 }
 
@@ -135,7 +135,7 @@ DATABASES = {
         'PORT': POSTGRES_PORT,
     }
 }
-
+    
 REDIS_CHANNEL_PORT = os.environ.get("REDIS_CHANNEL_PORT") or '6379'
 REDIS_CHANNEL_HOST = os.environ.get("REDIS_CHANNEL_HOST")  or "127.0.0.1"
 
