@@ -248,63 +248,387 @@ paths:
               schema:
                 $ref: '#/components/schemas/brotherDataSer'
           description: ''
-  /khatma/add-member-k/:
+  /khatma/add-member-group/{id}/:
     post:
-      operationId: khatma_add_member_k_create
-      tags:
-      - khatma
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          description: No response body
-  /khatma/add-member-kg/:
-    post:
-      operationId: khatma_add_member_kg_create
-      tags:
-      - khatma
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          description: No response body
-  /khatma/create/:
-    get:
-      operationId: khatma_create_retrieve
-      tags:
-      - khatma
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          description: No response body
-    post:
-      operationId: khatma_create_create
-      tags:
-      - khatma
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          description: No response body
-  /khatma/create-khatma-group/:
-    post:
-      operationId: khatma_create_khatma_group_create
-      tags:
-      - khatma
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          description: No response body
-  /khatma/retreive/{kh_name}/:
-    get:
-      operationId: get_khatma
+      operationId: khatma_add_member_group_create
       parameters:
       - in: path
-        name: kh_name
+        name: id
         schema:
-          type: string
+          type: integer
+        required: true
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /khatma/auth/:
+    get:
+      operationId: khatma_auth_retrieve
+      description: |-
+        get:
+            API view for retrieving ticket to connect to websocket .
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /khatma/group/:
+    get:
+      operationId: khatma_group_retrieve
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: khatma_group_create
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /khatma/khatma/:
+    get:
+      operationId: khatma_khatma_retrieve
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/khatma'
+          description: ''
+    post:
+      operationId: khatma_khatma_create
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/khatma'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/khatma'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/khatma'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/khatma'
+          description: ''
+    put:
+      operationId: khatma_khatma_update
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/khatma'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/khatma'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/khatma'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/khatma'
+          description: ''
+    patch:
+      operationId: khatma_khatma_partial_update
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patchedkhatma'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Patchedkhatma'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Patchedkhatma'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/khatma'
+          description: ''
+    delete:
+      operationId: khatma_khatma_destroy
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /khatma/khatma-membership/:
+    get:
+      operationId: khatma_khatma_membership_list
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/khatma_memb'
+          description: ''
+    post:
+      operationId: khatma_khatma_membership_create
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/khatma_memb'
+          description: ''
+    put:
+      operationId: khatma_khatma_membership_update
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/khatma_memb'
+          description: ''
+    patch:
+      operationId: khatma_khatma_membership_partial_update
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patchedkhatma_memb'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Patchedkhatma_memb'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Patchedkhatma_memb'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/khatma_memb'
+          description: ''
+    delete:
+      operationId: khatma_khatma_membership_destroy
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /khatma/khatma-membership/{id}/:
+    get:
+      operationId: khatma_khatma_membership_list_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/khatma_memb'
+          description: ''
+    post:
+      operationId: khatma_khatma_membership_create_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/khatma_memb'
+          description: ''
+    put:
+      operationId: khatma_khatma_membership_update_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/khatma_memb'
+          description: ''
+    patch:
+      operationId: khatma_khatma_membership_partial_update_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patchedkhatma_memb'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Patchedkhatma_memb'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Patchedkhatma_memb'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/khatma_memb'
+          description: ''
+    delete:
+      operationId: khatma_khatma_membership_destroy_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /khatma/khatma/{id}/:
+    get:
+      operationId: khatma_khatma_retrieve_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
         required: true
       tags:
       - khatma
@@ -317,6 +641,113 @@ paths:
               schema:
                 $ref: '#/components/schemas/khatma'
           description: ''
+    post:
+      operationId: khatma_khatma_create_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/khatma'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/khatma'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/khatma'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/khatma'
+          description: ''
+    put:
+      operationId: khatma_khatma_update_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/khatma'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/khatma'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/khatma'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/khatma'
+          description: ''
+    patch:
+      operationId: khatma_khatma_partial_update_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patchedkhatma'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Patchedkhatma'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Patchedkhatma'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/khatma'
+          description: ''
+    delete:
+      operationId: khatma_khatma_destroy_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
   /notification/accept-br-req/{id}/:
     post:
       operationId: notification_accept_br_req_create
@@ -418,6 +849,11 @@ components:
       - Algeria
       type: string
       description: '* `Algeria` - DZ'
+    CurrentSurahEnum:
+      enum:
+      - the cow
+      type: string
+      description: '* `the cow` - the cow'
     GenderEnum:
       enum:
       - male
@@ -426,6 +862,97 @@ components:
       description: |-
         * `male` - M
         * `female` - F
+    Patchedkhatma:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 20
+        endDate:
+          type: string
+          format: date-time
+        intentions:
+          type: string
+          maxLength: 180
+        duaa:
+          type: string
+          maxLength: 180
+        startSurah:
+          $ref: '#/components/schemas/CurrentSurahEnum'
+        startVerse:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        endSurah:
+          $ref: '#/components/schemas/CurrentSurahEnum'
+        endVerse:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        progress:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        launcher:
+          type: integer
+          nullable: true
+        khatmaGroup:
+          type: integer
+    Patchedkhatma_memb:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        startShareSurah:
+          $ref: '#/components/schemas/CurrentSurahEnum'
+        startShareVerse:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        endShareSurah:
+          $ref: '#/components/schemas/CurrentSurahEnum'
+        endShareVerse:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        currentSurah:
+          $ref: '#/components/schemas/CurrentSurahEnum'
+        currentVerse:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        progress:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        finishDate:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        khatmaGroupMembership:
+          type: integer
+        khatma:
+          type: integer
+    StatusEnum:
+      enum:
+      - ongoing
+      - completed
+      - aborted
+      type: string
+      description: |-
+        * `ongoing` - ongoing
+        * `completed` - completed
+        * `aborted` - aborted
     TokenObtainPair:
       type: object
       properties:
@@ -510,23 +1037,96 @@ components:
     khatma:
       type: object
       properties:
+        id:
+          type: integer
+          readOnly: true
         name:
           type: string
           maxLength: 20
-        startDate:
-          type: string
-          format: date-time
         endDate:
           type: string
           format: date-time
-        G_name:
+        intentions:
           type: string
-          maxLength: 40
+          maxLength: 180
+        duaa:
+          type: string
+          maxLength: 180
+        startSurah:
+          $ref: '#/components/schemas/CurrentSurahEnum'
+        startVerse:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        endSurah:
+          $ref: '#/components/schemas/CurrentSurahEnum'
+        endVerse:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        progress:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        launcher:
+          type: integer
+          nullable: true
+        khatmaGroup:
+          type: integer
       required:
-      - G_name
+      - created_at
       - endDate
+      - endSurah
+      - id
       - name
-      - startDate
+      - startSurah
+    khatma_memb:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        startShareSurah:
+          $ref: '#/components/schemas/CurrentSurahEnum'
+        startShareVerse:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        endShareSurah:
+          $ref: '#/components/schemas/CurrentSurahEnum'
+        endShareVerse:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        currentSurah:
+          $ref: '#/components/schemas/CurrentSurahEnum'
+        currentVerse:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        progress:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        finishDate:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        khatmaGroupMembership:
+          type: integer
+        khatma:
+          type: integer
+      required:
+      - currentSurah
+      - endShareSurah
+      - id
+      - startShareSurah
   securitySchemes:
     jwtAuth:
       type: http
