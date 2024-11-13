@@ -5,8 +5,8 @@ from rest_framework import status
 from rest_framework import views
 from datetime import timedelta
 from django.utils import timezone
-from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from rest_framework.mixins import CreateModelMixin,ListModelMixin
+from rest_framework.generics import RetrieveUpdateAPIView,RetrieveUpdateDestroyAPIView
+from rest_framework.mixins import CreateModelMixin,ListModelMixin,DestroyModelMixin
 from khatma.models import Khatma,khatmaMembership,khatmaGroupMembership,khatmaGroup
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import FormParser,MultiPartParser
@@ -15,9 +15,7 @@ from drf_spectacular.utils import extend_schema
 
 
 # create a khatmaGroup with one admin group membership which is the sender
-@extend_schema(
-    
-)
+
 class Group(views.APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
@@ -48,7 +46,66 @@ class Group(views.APIView):
         serializer = khatmaGroupSerializer(groups,many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
 
+    def get_group_queryset(self):
+        try:
+            id = self.request.data["group_id"]
+        except:
+            id = None
+        if id:
+            return khatmaGroup.objects.filter(id=id)
+        return khatmaGroup.objects.none()
+    
+    def delete(self,request,*args,**kwargs): # delete a khatma group by admin only
+        user = request.user
+        group_query = self.get_group_queryset()
+        if not group_query:
+            return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"group not found"})
+        group = group_query.first()
+        is_admin = khatmaGroupMembership.objects.filter(user=user,khatmaGroup=group,role="admin").exists()
+        if not is_admin:
+            return Response(status=status.HTTP_403_FORBIDDEN,data={"error":"only admin can delete a group"})
+        try:
+            group.delete()
+        except:
+            return Response(status=status.http40)
+        return Response(status=status.HTTP_204_NO_CONTENT,data={"msg":"group deleted successfully"})
+    
+# manage group settings 
+class groupSettings(RetrieveUpdateAPIView,ListModelMixin):
+    serializer_class = groupSettingsSerializer 
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+    def get_queryset(self):
+        try:
+            id = self.kwargs['id']
+        except:
+            id = None
+        if not id:
+            return khatmaGroupSettings.objects.none()
+        return khatmaGroupSettings.objects.filter(id=id)
+    
+    def is_in_group(self):
+        user = self.request.user
+        settings_queryset = self.get_queryset()
+        if not settings_queryset:
+            return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"settings not found"})
+        settings = settings_queryset.first()
+        group = settings.group
+        if not user in group.members.all():
+            return Response(status=status.HTTP_403_FORBIDDEN,data={"error":"user not in group"})
+        return True
+    
+    def get(self,request,*args,**kwargs):
+        if self.is_in_group():
+            return self.retrieve(request,*args,**kwargs)
 
+    def post(self,request,*args,**kwargs):
+        if self.is_in_group():
+            is_admin = khatmaGroupMembership.objects.filter(user=request.user,role="admin").exists()
+            if not is_admin:
+                return Response(status=status.HTTP_403_FORBIDDEN,data={"error":"user not admin in the group"})
+            return self.partial_update(request,*args,**kwargs)
+        
 # add a member to a khatma
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
