@@ -7,13 +7,22 @@ class khatmaSerializer(serializers.ModelSerializer):
         model = Khatma
         fields = '__all__'
 
-class khatmaGroupSerializer(serializers.ModelSerializer):
+class khatmaGroupDisplaySerializer(serializers.ModelSerializer):
     icon = serializers.ImageField(allow_empty_file=True,allow_null=True,required=False)
     class Meta:
         model = khatmaGroup
         fields = ["id","name","icon"]
     
-
+class khatmaGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = khatmaGroup
+        fields = '__all__' 
+        
+class groupSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = khatmaGroupSettings
+        fields = "__all__"
+ 
 class khatma_membSerializer(serializers.ModelSerializer):
     class Meta:
         model = khatmaMembership
