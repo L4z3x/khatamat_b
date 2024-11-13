@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser,PermissionsMixin,BaseUserManager
 from django.utils import timezone
 from django.contrib.auth.hashers import make_password
-from func import upload_to
-
 
 class MyUserManager(BaseUserManager):
     def create_user(self,username,email,gender,country,password=None, **extra_fields):
@@ -41,7 +39,7 @@ class MyUser(AbstractBaseUser,PermissionsMixin):
     country = models.CharField(max_length=20,choices=country_list,default=None)
     date_joined = models.DateTimeField(default = timezone.now)
     last_login = models.DateTimeField(blank=True,null=True)
-    profilePic = models.ImageField(upload_to=upload_to(f'{username}','profilePic'),default='<django.db.models.fields.CharField>/profilePic/default.png',null=True)
+    profilePic = models.ImageField(upload_to="UserPofilePic",default='UserProfilePic/default.png',null=False)
     khatmasNum = models.IntegerField(default=0)
     brothersNum = models.IntegerField(default=0)
     brothers = models.ManyToManyField('self',symmetrical=False, through='brothership',related_name='brothers_set')
@@ -52,24 +50,27 @@ class MyUser(AbstractBaseUser,PermissionsMixin):
     objects = MyUserManager()
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'gender', 'country']
+    
+    def updateKhatmasNum(self,*args,**kwargs): # update khatma number seperately
+        groupMem = self.khatmaGroupMembership.all()
+        self.khatmasNum = 0
+        for g in groupMem:
+            for kh in g.khatmaMembership.all():
+                if kh.progress == 100 and kh.status == "completed": 
+                    self.khatmasNum += 1
+        super().save(*args,**kwargs)
 
     def save(self, *args, **kwargs):
         if self.password and not self.password.startswith('pbkdf2_sha256$'):
             self.password = make_password(self.password)
+        # update number of brothers
+        self.brothersNum = len(set(self.brothers.all() | self.brothers_set.all())) 
+        # update number of khatmas completed 
+        
         super().save(*args, **kwargs)
-
 
     def __str__(self):
         return self.username
-
-    # def get_brothers(req,rec):
-    #     try:
-    #         bro = brothership.objects.get(user1=req,user2=rec)
-    #         bro.is_active = True
-    #         bro.save()
-    #     except:
-    #         raise ValueError("brothership not found")
-    #     return bro
 
 
 class brothership(models.Model):    
