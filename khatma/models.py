@@ -1,6 +1,5 @@
 from django.db import models
 from api.models import MyUser
-from community.models import upload_to
 
 
 class khatmaGroupManager(models.Manager):
@@ -11,13 +10,11 @@ class khatmaGroupManager(models.Manager):
         group.members.set(members)
         return group
 
-  
 class khatmaGroup(models.Model):  
     name = models.CharField(max_length=40)
-    icon = models.ImageField(upload_to=upload_to('khatmaGroupImages',f'{name}_{id}'),serialize=True)
+    icon = models.ImageField(upload_to="khatmaGroupImages/",serialize=True)
     members = models.ManyToManyField(MyUser,through="khatmaGroupMembership",related_name="khatmaGroup")
     description = models.CharField(max_length=290,default='BIO')    
-    
     objects = khatmaGroupManager()
     
     def __str__(self):
@@ -38,7 +35,7 @@ class khatmaGroupSettings(models.Model): # settings related to khatma
         ("custom","custom"),
     ]
 
-    private = models.BooleanField(default=False,null=False)
+    # private = models.BooleanField(default=False,null=False)  i forgot why i added this field
     group = models.OneToOneField(khatmaGroup,on_delete=models.CASCADE,related_name="settings")
     canAddMember = models.CharField(max_length=12,default="all",choices=MemberChoices)
     canAddMember_custom = models.ManyToManyField(MyUser,related_name="canAddMember")
@@ -65,12 +62,18 @@ class khatmaGroupMembership(models.Model): # users inside a khatma group
         ("user","user"),
     ]
     since = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(MyUser,on_delete=models.CASCADE)
+    user = models.ForeignKey(MyUser,on_delete=models.CASCADE,related_name="khatmaGroupMembership")
     khatmaGroup = models.ForeignKey(khatmaGroup,on_delete=models.CASCADE,related_name="khatma_G_membership")
     role = models.CharField(default="admin",max_length=6,choices=ROLE,blank=False)
     def __str__(self):
         return f"{self.user} in {self.khatmaGroup} group"
 
+
+class media(models.Model):
+    group = models.ForeignKey(khatmaGroup,on_delete=models.CASCADE,related_name="media")
+    sender = models.ForeignKey(khatmaGroupMembership,on_delete=models.SET_NULL,null=True)
+    image = models.ImageField(upload_to="khatmaGroupMedia/")
+    
 class message(models.Model):
     sender = models.ForeignKey(khatmaGroupMembership,on_delete=models.CASCADE)
     group = models.ForeignKey(khatmaGroup,on_delete=models.CASCADE)
@@ -112,7 +115,6 @@ KhatmaStatusList = [
 
 class Khatma(models.Model):    # khatma instance created by a khatmaGroup Admin
     
-    # model Fields
     launcher = models.ForeignKey(MyUser,on_delete=models.SET_NULL,null=True,related_name="launched_khatmas")  
     name = models.CharField(max_length=20,null=False)
     khatmaGroup = models.ForeignKey(khatmaGroup,on_delete=models.CASCADE,null=False,default=None)
@@ -147,7 +149,7 @@ class Khatma(models.Model):    # khatma instance created by a khatmaGroup Admin
         
 class khatmaMembership(models.Model):
     
-    khatmaGroupMembership = models.ForeignKey(khatmaGroupMembership,on_delete=models.CASCADE,null=False,default=None)   
+    khatmaGroupMembership = models.ForeignKey(khatmaGroupMembership,on_delete=models.CASCADE,null=False,related_name="khatmaMembership")   
     khatma = models.ForeignKey(Khatma,on_delete=models.CASCADE,null=False,default=None)
    
     startShareSurah = models.CharField(max_length=35,choices=SurahList)
