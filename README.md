@@ -1,6 +1,7 @@
 
 # KHATAMAT 
-a platform for muslims to do various islamic activities such doing a khatma together, reading articles, discussing different topics and more.
+a platform for muslims to discuss various islamic topics and do khatmas together, read quran, discuss inside closed groups.
+
 # Contributing          
 ## how to run it 
 ### install virtual enviroment
@@ -26,9 +27,13 @@ now clone the repo and install requirement for the backend
 git clone https://github.com/L4z3x/khatamat_b 
 pip install -r requirement.txt
 ``` 
-now install the requirement for the frontend
+clone the front-end repo here https://github.com/KMalek101/gharib
+```
+cd khatamat_b
+git clone https://github.com/KMalek101/gharib
+```    
 ``` 
-cd khatamat_front/
+cd gharib/
 npm i 
 npm run build
 ```
@@ -36,9 +41,6 @@ npm run build
 go back to the main dir
 ```
 cd ..
-```
-start the local server
-```
 python3 manage.py runserver
 ```
-change what you want and 
+open a new branch and start working
