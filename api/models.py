@@ -46,7 +46,7 @@ class MyUser(AbstractBaseUser,PermissionsMixin):
     brothersNum = models.IntegerField(default=0)
     brothers = models.ManyToManyField('self',symmetrical=False, through='brothership',related_name='brothers_set')
     private = models.BooleanField(default=False,null=False)
-    blocked = models.ManyToManyField('self',symmetrical=False,null=True) # to be rethinked with it's views
+    blocked = models.ManyToManyField('self',symmetrical=False,default=None) # to be rethinked with it's views
 
 
     objects = MyUserManager()
