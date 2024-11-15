@@ -1,12 +1,14 @@
 from django.urls import path
-from khatma import views
+from khatma.views import * 
 from django_channels_jwt.views import AsgiValidateTokenView
 urlpatterns = [
     path('auth/',AsgiValidateTokenView.as_view(),name='get uuid ticket'),
-    path("khatma/<int:id>/",views.khatma_details.as_view(),name="retreive or update khatma"),
-    path("khatma/",views.khatma_details.as_view(),name="create khatma"),
-    path("group/",views.Group.as_view(),name="create khatma group"),
-    path("add-member-group/<int:id>/",views.add_user_to_group,name="add member to khatmaGroup"),
-    path("khatma-membership/<int:id>/",views.khatma_membership.as_view(),name="add member to khatma"),
-    path("khatma-membership/",views.khatma_membership.as_view(),name="add member to khatma"),
+    path("khatma/<int:id>/",khatma_details.as_view(),name="retreive or update khatma"),
+    path("create-khatma/", khatma_details.as_view(),name="create khatma"),
+    path("group/", Group.as_view(),name="create delete group"),
+    path("group-settings/<int:id>/",group_settings.as_view(),name="get update group settings"),
+    path("add-member-group/<int:group_id>/", add_user_to_group,name="add member to group"),
+    path("khatma-membership/<int:id>/", khatma_membership.as_view(),name="add member to khatma"),
+    path("list-khatma-membership/", khatma_membership.as_view(),name="list all members of khatma"),
+    path("list-khatma/<int:group_id>/", list_khatma,name="list khatmas of a group"),
 ]
