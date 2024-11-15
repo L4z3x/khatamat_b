@@ -1,0 +1,67 @@
+
+khatma:
+        pending:
+                - group invitation link
+                - handle listing all or recent khatma memberships of user to display them on the side bar of profile
+                - set khatma maximum part length
+
+        done:
+                group:
+                        - create khatma group
+                        - list groups of a user (name,icon,id)
+                        - delete a khatma group by admin only
+                group settings:
+                        - get group settings details by admins
+                        - modify group settings by admins
+                add a user to group by (depends on the group settings)
+                exit a group
+                khatma Membership:
+                        - update (progress and share ,etc)
+                        - list all khatma memberships of a khatma for khatma info page                  
+                        - retrieve user membership by id  
+                        - join a khatma and take your share by  group id and khatma id 
+                khatma details:
+                        - launch a khatma by (depeding on the group setting)
+                        - update a khatma details within the time out range by admin
+                        - delete a khatma within the time out range by admin or launcher
+                        - retrieve khatma details by id 
+                list khatmas: splited into current and history 
+
+api (user):
+        pending:
+                - add error handling and input validation
+                - what to put instead of the username when deleting a account (like his khatmas with others, what will take his place) # i know it's not clear enaugh 
+        done:
+                - register (create a user) and return a jwt
+                - delete user account
+                - list brothers of a user 
+                - list  mutual brothers with a brother
+                - update user profile
+                - unbrother a brother ;)
+                - block a user
+                - list blocked users
+notification:
+        pending:
+        done:
+                - send a brothership request
+                - accept a brothership request
+                - list brothership requests
+                - deny brothership requests
+
+community:
+        pending:
+                - create post
+                - see post
+                - create comment 
+                - interacte
+                - report
+                - hide 
+                - list user's post
+                - create post 
+                - join
+                - invite
+                - share
+                - post 
+                - profile
+                - list community's posts
+        done:
