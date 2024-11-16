@@ -32,21 +32,24 @@ api (user):
                 - add error handling and input validation
                 - what to put instead of the username when deleting a account (like his khatmas with others, what will take his place) # i know it's not clear enaugh 
         done:
-                - register (create a user) and return a jwt
-                - delete user account
-                - list brothers of a user 
-                - list  mutual brothers with a brother
-                - update user profile
-                - unbrother a brother ;)
-                - block a user
-                - list blocked users
+                register (create a user) and return a jwt
+                delete user account
+                list brothers of a user 
+                list  mutual brothers with a brother
+                update user profile
+                unbrother a brother ;)
+                block a user
+                list blocked users
 notification:
         pending:
+                - add settings to community
         done:
-                - send a brothership request
-                - accept a brothership request
-                - list brothership requests
-                - deny brothership requests
+                create_joinReq: send join request to a community if their authentication is not none
+                accept_joinReq: accept join request
+                send a brothership request
+                accept a brothership request
+                list brothership requests
+                deny brothership requests
 
 community:
         pending:
@@ -64,4 +67,5 @@ community:
                 - post 
                 - profile
                 - list community's posts
+                - custom authentication when adding users to community
         done:
