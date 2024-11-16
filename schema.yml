@@ -3,12 +3,12 @@ info:
   title: GHARIB
   version: 0.0.0
 paths:
-  /api/block-brother/{id}/:
+  /api/block-brother/{user_id}/:
     post:
       operationId: api_block_brother_create
       parameters:
       - in: path
-        name: id
+        name: user_id
         schema:
           type: integer
         required: true
@@ -19,12 +19,12 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/delete-brother/{id}/:
+  /api/delete-brother/{user_id}/:
     post:
       operationId: api_delete_brother_create
       parameters:
       - in: path
-        name: id
+        name: user_id
         schema:
           type: integer
         required: true
@@ -35,12 +35,12 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/delete/{id}/:
+  /api/delete/{user_id}/:
     delete:
       operationId: delete_user_account
       parameters:
       - in: path
-        name: id
+        name: user_id
         schema:
           type: integer
         required: true
@@ -76,23 +76,6 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/list-brother/{id}/:
-    get:
-      operationId: get_user_brother_list_2
-      summary: get brother list
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - api
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          description: No response body
   /api/login/:
     post:
       operationId: api_login_create
@@ -120,12 +103,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/TokenObtainPair'
           description: ''
-  /api/mutual-brother/{id}/:
+  /api/mutual-brother/{user_id}/:
     get:
       operationId: get_mutual_brothers
       parameters:
       - in: path
-        name: id
+        name: user_id
         schema:
           type: integer
         required: true
@@ -184,12 +167,12 @@ paths:
                 items:
                   $ref: '#/components/schemas/User'
           description: ''
-  /api/retreive/{id}/:
+  /api/retreive/{user_id}/:
     get:
       operationId: get_user_list_2
       parameters:
       - in: path
-        name: id
+        name: user_id
         schema:
           type: integer
         required: true
@@ -248,12 +231,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/brotherDataSer'
           description: ''
-  /khatma/add-member-group/{id}/:
+  /khatma/add-member-group/{group_id}/:
     post:
       operationId: khatma_add_member_group_create
       parameters:
       - in: path
-        name: id
+        name: group_id
         schema:
           type: integer
         required: true
@@ -277,28 +260,9 @@ paths:
       responses:
         '200':
           description: No response body
-  /khatma/group/:
+  /khatma/create-khatma/:
     get:
-      operationId: khatma_group_retrieve
-      tags:
-      - khatma
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          description: No response body
-    post:
-      operationId: khatma_group_create
-      tags:
-      - khatma
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          description: No response body
-  /khatma/khatma/:
-    get:
-      operationId: khatma_khatma_retrieve
+      operationId: khatma_create_khatma_retrieve
       tags:
       - khatma
       security:
@@ -311,7 +275,7 @@ paths:
                 $ref: '#/components/schemas/khatma'
           description: ''
     post:
-      operationId: khatma_khatma_create
+      operationId: khatma_create_khatma_create
       tags:
       - khatma
       requestBody:
@@ -336,7 +300,7 @@ paths:
                 $ref: '#/components/schemas/khatma'
           description: ''
     put:
-      operationId: khatma_khatma_update
+      operationId: khatma_create_khatma_update
       tags:
       - khatma
       requestBody:
@@ -361,7 +325,7 @@ paths:
                 $ref: '#/components/schemas/khatma'
           description: ''
     patch:
-      operationId: khatma_khatma_partial_update
+      operationId: khatma_create_khatma_partial_update
       tags:
       - khatma
       requestBody:
@@ -385,7 +349,7 @@ paths:
                 $ref: '#/components/schemas/khatma'
           description: ''
     delete:
-      operationId: khatma_khatma_destroy
+      operationId: khatma_create_khatma_destroy
       tags:
       - khatma
       security:
@@ -393,9 +357,157 @@ paths:
       responses:
         '204':
           description: No response body
-  /khatma/khatma-membership/:
+  /khatma/group/:
+    get:
+      operationId: khatma_group_retrieve
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: khatma_group_create
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: khatma_group_destroy
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /khatma/group-settings/{id}/:
+    get:
+      operationId: khatma_group_settings_list
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/groupSettings'
+          description: ''
+    post:
+      operationId: khatma_group_settings_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/groupSettings'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/groupSettings'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/groupSettings'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/groupSettings'
+          description: ''
+    put:
+      operationId: khatma_group_settings_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/groupSettings'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/groupSettings'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/groupSettings'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/groupSettings'
+          description: ''
+    patch:
+      operationId: khatma_group_settings_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedgroupSettings'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedgroupSettings'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedgroupSettings'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/groupSettings'
+          description: ''
+  /khatma/khatma-membership/{id}/:
     get:
       operationId: khatma_khatma_membership_list
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
       tags:
       - khatma
       security:
@@ -411,6 +523,12 @@ paths:
           description: ''
     post:
       operationId: khatma_khatma_membership_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
       tags:
       - khatma
       requestBody:
@@ -436,6 +554,12 @@ paths:
           description: ''
     put:
       operationId: khatma_khatma_membership_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
       tags:
       - khatma
       requestBody:
@@ -461,6 +585,12 @@ paths:
           description: ''
     patch:
       operationId: khatma_khatma_membership_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
       tags:
       - khatma
       requestBody:
@@ -485,129 +615,6 @@ paths:
           description: ''
     delete:
       operationId: khatma_khatma_membership_destroy
-      tags:
-      - khatma
-      security:
-      - jwtAuth: []
-      responses:
-        '204':
-          description: No response body
-  /khatma/khatma-membership/{id}/:
-    get:
-      operationId: khatma_khatma_membership_list_2
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - khatma
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/khatma_memb'
-          description: ''
-    post:
-      operationId: khatma_khatma_membership_create_2
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - khatma
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/khatma_memb'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/khatma_memb'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/khatma_memb'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/khatma_memb'
-          description: ''
-    put:
-      operationId: khatma_khatma_membership_update_2
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - khatma
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/khatma_memb'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/khatma_memb'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/khatma_memb'
-        required: true
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/khatma_memb'
-          description: ''
-    patch:
-      operationId: khatma_khatma_membership_partial_update_2
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - khatma
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Patchedkhatma_memb'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Patchedkhatma_memb'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/Patchedkhatma_memb'
-      security:
-      - jwtAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/khatma_memb'
-          description: ''
-    delete:
-      operationId: khatma_khatma_membership_destroy_2
       parameters:
       - in: path
         name: id
@@ -623,7 +630,7 @@ paths:
           description: No response body
   /khatma/khatma/{id}/:
     get:
-      operationId: khatma_khatma_retrieve_2
+      operationId: khatma_khatma_retrieve
       parameters:
       - in: path
         name: id
@@ -642,7 +649,7 @@ paths:
                 $ref: '#/components/schemas/khatma'
           description: ''
     post:
-      operationId: khatma_khatma_create_2
+      operationId: khatma_khatma_create
       parameters:
       - in: path
         name: id
@@ -673,7 +680,7 @@ paths:
                 $ref: '#/components/schemas/khatma'
           description: ''
     put:
-      operationId: khatma_khatma_update_2
+      operationId: khatma_khatma_update
       parameters:
       - in: path
         name: id
@@ -704,7 +711,7 @@ paths:
                 $ref: '#/components/schemas/khatma'
           description: ''
     patch:
-      operationId: khatma_khatma_partial_update_2
+      operationId: khatma_khatma_partial_update
       parameters:
       - in: path
         name: id
@@ -734,7 +741,7 @@ paths:
                 $ref: '#/components/schemas/khatma'
           description: ''
     delete:
-      operationId: khatma_khatma_destroy_2
+      operationId: khatma_khatma_destroy
       parameters:
       - in: path
         name: id
@@ -747,6 +754,121 @@ paths:
       - jwtAuth: []
       responses:
         '204':
+          description: No response body
+  /khatma/list-khatma-membership/:
+    get:
+      operationId: khatma_list_khatma_membership_list
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/khatma_memb'
+          description: ''
+    post:
+      operationId: khatma_list_khatma_membership_create
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/khatma_memb'
+          description: ''
+    put:
+      operationId: khatma_list_khatma_membership_update
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/khatma_memb'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/khatma_memb'
+          description: ''
+    patch:
+      operationId: khatma_list_khatma_membership_partial_update
+      tags:
+      - khatma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patchedkhatma_memb'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Patchedkhatma_memb'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Patchedkhatma_memb'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/khatma_memb'
+          description: ''
+    delete:
+      operationId: khatma_list_khatma_membership_destroy
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /khatma/list-khatma/{group_id}/:
+    get:
+      operationId: khatma_list_khatma_retrieve
+      parameters:
+      - in: path
+        name: group_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - khatma
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
           description: No response body
   /notification/accept-br-req/{id}/:
     post:
@@ -764,15 +886,9 @@ paths:
       responses:
         '200':
           description: No response body
-  /notification/accept-join-req/{id}/:
+  /notification/accept-join-req/<int:sender_id/:
     post:
-      operationId: notification_accept_join_req_create
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
+      operationId: notification_accept_join_req_<int:sender_id_create
       tags:
       - notification
       security:
@@ -826,14 +942,14 @@ paths:
       responses:
         '200':
           description: No response body
-  /notification/send-join-req/{group_name}/:
+  /notification/send-join-req/{community_id}/:
     post:
       operationId: notification_send_join_req_create
       parameters:
       - in: path
-        name: group_name
+        name: community_id
         schema:
-          type: string
+          type: integer
         required: true
       tags:
       - notification
@@ -844,6 +960,26 @@ paths:
           description: No response body
 components:
   schemas:
+    CanAddMemberEnum:
+      enum:
+      - all
+      - only_admins
+      - custom
+      type: string
+      description: |-
+        * `all` - all
+        * `only_admins` - only_admins
+        * `custom` - custom
+    CanSendMessageEnum:
+      enum:
+      - all
+      - only_admins
+      - custom
+      type: string
+      description: |-
+        * `all` - all
+        * `only_admins` - only_admins
+        * `custom` - custom
     CountryEnum:
       enum:
       - Algeria
@@ -862,6 +998,30 @@ components:
       description: |-
         * `male` - M
         * `female` - F
+    PatchedgroupSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        canAddMember:
+          $ref: '#/components/schemas/CanAddMemberEnum'
+        canSendMessage:
+          $ref: '#/components/schemas/CanSendMessageEnum'
+        All_can_launch_khatma:
+          type: boolean
+        group:
+          type: integer
+        canAddMember_custom:
+          type: array
+          items:
+            type: integer
+            title: CanAddMember custom
+        canSendMessage_custom:
+          type: array
+          items:
+            type: integer
+            title: CanSendMessage custom
     Patchedkhatma:
       type: object
       properties:
@@ -896,6 +1056,8 @@ components:
           type: integer
           maximum: 2147483647
           minimum: 0
+        status:
+          $ref: '#/components/schemas/StatusEnum'
         created_at:
           type: string
           format: date-time
@@ -903,7 +1065,7 @@ components:
         launcher:
           type: integer
           nullable: true
-        khatmaGroup:
+        group:
           type: integer
     Patchedkhatma_memb:
       type: object
@@ -939,7 +1101,7 @@ components:
           nullable: true
         status:
           $ref: '#/components/schemas/StatusEnum'
-        khatmaGroupMembership:
+        groupMembership:
           type: integer
         khatma:
           type: integer
@@ -1012,7 +1174,6 @@ components:
         profilePic:
           type: string
           format: uri
-          nullable: true
         date_joined:
           type: string
           format: date-time
@@ -1034,6 +1195,35 @@ components:
       - id
       - img
       - username
+    groupSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        canAddMember:
+          $ref: '#/components/schemas/CanAddMemberEnum'
+        canSendMessage:
+          $ref: '#/components/schemas/CanSendMessageEnum'
+        All_can_launch_khatma:
+          type: boolean
+        group:
+          type: integer
+        canAddMember_custom:
+          type: array
+          items:
+            type: integer
+            title: CanAddMember custom
+        canSendMessage_custom:
+          type: array
+          items:
+            type: integer
+            title: CanSendMessage custom
+      required:
+      - canAddMember_custom
+      - canSendMessage_custom
+      - group
+      - id
     khatma:
       type: object
       properties:
@@ -1068,6 +1258,8 @@ components:
           type: integer
           maximum: 2147483647
           minimum: 0
+        status:
+          $ref: '#/components/schemas/StatusEnum'
         created_at:
           type: string
           format: date-time
@@ -1075,7 +1267,7 @@ components:
         launcher:
           type: integer
           nullable: true
-        khatmaGroup:
+        group:
           type: integer
       required:
       - created_at
@@ -1084,6 +1276,7 @@ components:
       - id
       - name
       - startSurah
+      - status
     khatma_memb:
       type: object
       properties:
@@ -1118,13 +1311,14 @@ components:
           nullable: true
         status:
           $ref: '#/components/schemas/StatusEnum'
-        khatmaGroupMembership:
+        groupMembership:
           type: integer
         khatma:
           type: integer
       required:
       - currentSurah
       - endShareSurah
+      - groupMembership
       - id
       - startShareSurah
   securitySchemes:
