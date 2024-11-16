@@ -1,17 +1,17 @@
 # consumers.py
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .models import khatmaGroup, message,khatmaGroupMembership
+from .models import group, message,groupMembership
 from .serializer import messageSerializer
 from channels.db import  database_sync_to_async
 
 @database_sync_to_async
 def get_group_Mem(group,user):
-    return khatmaGroupMembership.objects.get(khatmaGroup=group,user=user)
+    return groupMembership.objects.get(group=group,user=user)
 
 @database_sync_to_async
 def get_group(id):
-    return khatmaGroup.objects.get(id=id)
+    return group.objects.get(id=id)
 
 @database_sync_to_async
 def create_message(group,userMem,text):
@@ -29,7 +29,7 @@ def update_message(group,userMem,text,id):
     return data
 
 
-class khatmaGroupConsumer(AsyncWebsocketConsumer):
+class groupConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = self.scope['user']
         # check if user is authenticated . just when using the query string jwt middleware

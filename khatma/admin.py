@@ -4,7 +4,7 @@ from khatma.models import *
 
 admin.site.register(Khatma)
 admin.site.register(khatmaMembership)
-admin.site.register(khatmaGroup)
-admin.site.register(khatmaGroupMembership)
+admin.site.register(group)
+admin.site.register(groupMembership)
 admin.site.register(message)
-admin.site.register(khatmaGroupSettings)
+admin.site.register(groupSettings)

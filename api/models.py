@@ -29,7 +29,7 @@ class MyUser(AbstractBaseUser,PermissionsMixin):
     country_list=[
         ('Algeria','DZ'),
     ]
-
+    # i think i am gonna add setting class
     username = models.CharField(unique=True,max_length=20)
     fullname = models.CharField(max_length=30,null=False)
     is_active = models.BooleanField(default= True)
