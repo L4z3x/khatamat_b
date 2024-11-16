@@ -1,28 +1,32 @@
 from rest_framework import serializers
 from khatma.models import *
 
+class khatmaDisplaySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Khatma
+        fields = ["name","progress","endDate","id"]
 
 class khatmaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Khatma
         fields = '__all__'
 
-class khatmaGroupDisplaySerializer(serializers.ModelSerializer):
+class groupDisplaySerializer(serializers.ModelSerializer):
     icon = serializers.ImageField(allow_empty_file=True,allow_null=True,required=False)
     class Meta:
-        model = khatmaGroup
+        model = group
         fields = ["id","name","icon"]
     
-class khatmaGroupSerializer(serializers.ModelSerializer):
+class groupSerializer(serializers.ModelSerializer):
     class Meta:
-        model = khatmaGroup
+        model = group
         fields = '__all__' 
         
 class groupSettingsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = khatmaGroupSettings
+        model = groupSettings
         fields = "__all__"
- 
+        
 class khatma_membSerializer(serializers.ModelSerializer):
     class Meta:
         model = khatmaMembership
