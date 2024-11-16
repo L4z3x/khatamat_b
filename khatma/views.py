@@ -26,11 +26,11 @@ class Group(views.APIView):
         if serializer.is_valid():
             user = request.user
             data = serializer.validated_data
-            khatma_group = group.objects.create_group(name=data['name'],members=[user])
+            gr = group.objects.create_group(name=data['name'],members=[user])
             
             if "icon" in data.keys():
-                khatma_group.icon.save(f'{data['name']}',data['icon']) # search about media folder and some stuff abt image field
-                khatma_group.save()
+                gr.icon.save(f'{data['name']}',data['icon']) # search about media folder and some stuff abt image field
+                gr.save()
                 
             return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
@@ -90,9 +90,9 @@ class group_settings(RetrieveUpdateAPIView,ListModelMixin):
         if not settings_queryset:
             return "group not found"
         settings = settings_queryset.first()
-        group = settings.group
+        gr = settings.group
 
-        is_admin = group.group_membership.filter(user=user,role="admin",group=group).exists()
+        is_admin = group.group_membership.filter(user=user,role="admin",group=gr).exists()
 
         if not is_admin:
             return "user not admin in group"
@@ -125,9 +125,9 @@ class group_settings(RetrieveUpdateAPIView,ListModelMixin):
 @permission_classes([IsAuthenticated])
 def add_user_to_group(request,group_id):
     user = request.user
-    group = group.objects.filter(id=group_id).first()
+    gr = group.objects.filter(id=group_id).first()
     # check group
-    if not group:
+    if not gr:
         return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"group not found"})
     
     new_member  = MyUser.objects.filter(id=request.data['user_id']).first()
@@ -136,26 +136,26 @@ def add_user_to_group(request,group_id):
         return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"member not found"})
     
     # check if the new member is in the list of the user's brothers
-    if not new_member in user.brothers.all() and new_member in user.brothers_set.all():
-        return Response(status=status.HTTP_403_FORBIDDEN,data={"error":"user and member are not friends"})
+    if not new_member in user.brothers.all() and not new_member in user.brothers_set.all():
+        return Response(status=status.HTTP_403_FORBIDDEN,data={"error":" not friends"})
     
-    groupMembership.objects.create(group=group,user=new_member,role="user")
-    return Response(status=status.HTTP_201_CREATED,data={"msg":f"member added successfully to {group.name}"})
+    groupMembership.objects.create(group=gr,user=new_member,role="user")
+    return Response(status=status.HTTP_201_CREATED,data={"msg":f"member added successfully to {gr.name}"})
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def exit_group(request,group_id): # user exiting a group
     user = request.user
-    group = group.objects.filter(id=group_id).first()
+    gr = group.objects.filter(id=group_id).first()
     
     # check group
-    if not group:
+    if not gr:
         return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"group not found"})
     # check user in group
-    if not group in user.group.all():
+    if not gr in user.group.all():
         return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"user not in group"})
     
-    userMembership = groupMembership.objects.filter(user=user,group=group).first()
+    userMembership = groupMembership.objects.filter(user=user,group=gr).first()
     userMembership.delete()
     return Response(status=status.HTTP_204_NO_CONTENT,data={"msg":"user removed from khatma successfully"})
     
@@ -180,14 +180,17 @@ class khatma_membership(RetrieveUpdateDestroyAPIView,CreateModelMixin,ListModelM
         return khatmaMembership.objects.filter(id=id)
      
     def patch(self, request, *args, **kwargs): # update a khatma membership like share and progress
-        # update khamta membership
         user = request.user
         queryset = self.get_khatmaMembeship_queryset()
         khatma_Membership =  queryset.first()
-        if queryset.exists():
-            if khatma_Membership.groupMembership.user == user:
-                self.queryset = queryset
-                return self.partial_update(request,*args,**kwargs)
+        print(khatma_Membership)
+        if not queryset.exists():
+            if not khatma_Membership.groupMembership.user == user:
+                return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"no khatma membership found for the user"})
+        self.queryset = queryset
+        data = self.partial_update(request,*args,**kwargs)
+        khatma_Membership.khatma.save()
+        return Response(status=status.HTTP_202_ACCEPTED,data={"data":data.data})
         
     def post(self,request,*args,**kwargs): # join a khatma and take your share
         user = request.user
@@ -201,9 +204,7 @@ class khatma_membership(RetrieveUpdateDestroyAPIView,CreateModelMixin,ListModelM
             return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"user not member in the group yet"})
         return self.create(request,*args,**kwargs)
         
-# TODO: handle listing all or recent khatma memberships of user to display them on the side bar of profile
-
-    def get(self,request,*args,**kwargs): # retrieve khatma share status by khatma membership id (???) 
+    def get(self,request,*args,**kwargs): # retrieve khatma share status   by khatma membership id (???) 
         user = request.user
         try: 
             id = self.kwargs['id']
@@ -212,7 +213,7 @@ class khatma_membership(RetrieveUpdateDestroyAPIView,CreateModelMixin,ListModelM
             
         if id == None:
             # retrieve all khatma memberships of members in a khatma 
-            return self.list_all(request,*args,**kwargs)
+            return self.list_all_for_group(request,*args,**kwargs)
             
         # retrieving one single khatma membership
         queryset = self.get_khatmaMembeship_queryset()
@@ -227,15 +228,15 @@ class khatma_membership(RetrieveUpdateDestroyAPIView,CreateModelMixin,ListModelM
         self.queryset = queryset
         return self.retrieve(request,*args,**kwargs)
     
-    def list_all(self,request,*args,**kwargs): # list khatma memberships of all members in that khatma for khatma info page
+    def list_all_for_group(self,request,*args,**kwargs): # list khatma memberships of all members in that khatma for khatma info page
         user = request.user
-        group = group.objects.filter(id=request.query_params.get('g', None)).first()
+        gr = group.objects.filter(id=request.query_params.get('g', None)).first()
             # check group existance
-        if not group:
+        if not gr:
             return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"group not found"})
             
         # check user membership in the group
-        if not group in user.group.all():
+        if not gr in user.group.all():
             return Response(status=status.HTTP_403_FORBIDDEN,data={"error":"user is not in the group"})
             
         khatma = Khatma.objects.filter(id=request.query_params.get('kh', None)).first()
@@ -246,6 +247,23 @@ class khatma_membership(RetrieveUpdateDestroyAPIView,CreateModelMixin,ListModelM
         self.queryset = khatmaMembership.objects.filter(khatma=khatma).all()
         return self.list(request,*args,**kwargs)
     
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def list_khatmas_of_user(request): # display all khatma memberships of a user
+        user = request.user
+        kh = khatmaMembership.objects.filter(user=user,status='ongoing').all()
+        print(kh)
+        data = []
+        for membership in kh:
+            serializer = {}
+            serializer['progress'] = membership.progress
+            serializer['group'] = membership.khatma.group.name 
+            serializer['group_id'] = membership.khatma.group.pk
+            serializer['endData'] = membership.khatma.endDate
+            serializer['khatma'] = membership.khatma.name
+            data.append(serializer)
+        
+        return Response(status=status.HTTP_200_OK,data={"data":data})
 
 # create update retrieve delete khatma
 class khatma_details(RetrieveUpdateDestroyAPIView,CreateModelMixin):
@@ -255,9 +273,6 @@ class khatma_details(RetrieveUpdateDestroyAPIView,CreateModelMixin):
     
     UPDATE_TIMEOUT = timedelta(minutes=15) 
     DELETE_TIMEOUT = timedelta(minutes=15) 
-    
-    def get_group(id):
-        return group.objects.filter(id=id).first()
     
     def get_queryset(self): # get khatma query set
         return Khatma.objects.all()
@@ -274,23 +289,28 @@ class khatma_details(RetrieveUpdateDestroyAPIView,CreateModelMixin):
     def post(self,request,*args,**kwargs): # launch a khatma 
         user = request.user
         data = request.data
-        group = self.get_group(data['group'])
-        if Khatma.objects.filter(group=group,name=data['name']).exists():
+        gr = group.objects.filter(id=data['group']).first()
+
+        
+        
+        if Khatma.objects.filter(group=gr,name=data['name']).exists():
             return Response(status=status.HTTP_208_ALREADY_REPORTED,data={"error":"khatma with this name already exists in this group"})
         # check if the group give the permission to users to launch khatmas
-        if group.settings.All_can_launch_khatma == False:
+        if gr.settings.All_can_launch_khatma == False:
             # check if the user is admin in the group
-            is_admin = groupMembership.objects.filter(user=user,role="admin",group=group).exists()
+            is_admin = groupMembership.objects.filter(user=user,role="admin",group=gr).exists()
             if is_admin:        
                 try:
                     return self.create(request,*args,**kwargs)
-                except:
+                except Exception as e:
+                    print(e)
+                    
                     return Response(status=status.HTTP_400_BAD_REQUEST)
             return Response(data={"error":"user is not admin in group"},status=status.HTTP_400_BAD_REQUEST)
        
         else:
             # check if it's a member in the khatma group
-            is_member = groupMembership.objects.filter(user=user,group=group).exists()
+            is_member = groupMembership.objects.filter(user=user,group=gr).exists()
             if is_member:
                 try:
                     return self.create(request,*args,**kwargs)
@@ -364,14 +384,14 @@ class khatma_details(RetrieveUpdateDestroyAPIView,CreateModelMixin):
 # create update
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def list_khatma(request,group_id):
+def list_khatmas_of_group(request,group_id): # get khatmas of a group 
     user = request.user
-    group = group.objects.filter(id=group_id).first()
-    if not group:
+    gr= group.objects.filter(id=group_id).first()
+    if not gr:
         return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"group not found"})
-    if not user in group.members.all():
+    if not user in gr.members.all():
         return Response(status=status.HTTP_403_FORBIDDEN,data={"error":"user not in group"})
-    khatmas = group.khatma_set.all()
+    khatmas = gr.khatma_set.all()
     print(khatmas)
     current = []
     history = []
