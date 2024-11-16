@@ -54,18 +54,8 @@ class brother(views.APIView):
     
     def get(self,request,**args): # get brothers
         user = request.user
-        id = self.kwargs.get('id')
-        print(id)
-        if id:
-            brother = MyUser.objects.filter(id=id).first()
-            
-            # add private to user model default is False
-            if brother.private == True and user not in brother.brothers.all() and user not in brother.brothers_set.all():
-                return Response(data={"msg":"private accounte"},status=status.HTTP_302_FOUND) 
-
-            brothers = brother.brothers.all().union(brother.brothers_set.all())
-        else:
-            brothers = user.brothers.all().union(user.brothers_set.all())
+        
+        brothers = user.brothers.all().union(user.brothers_set.all())
 
         serializer = brotherDataSer(brothers,many=True).data
 
@@ -82,8 +72,6 @@ def updateUser(request):
     user = request.user
 
     serializer = UserSerializer(instance=user, data=request.data, partial=True)
-    if serializer.is_valid():
-        print(serializer.validated_data)    
 
     if not serializer.is_valid():
         return Response(status=status.HTTP_400_BAD_REQUEST,data=serializer.errors)
@@ -99,15 +87,20 @@ def updateUser(request):
 @extend_schema(operation_id="delete_brother")
 def deleteBrother(request,id): # remove a brother from your list
     user = request.user
-    try:
-        brother = MyUser.objects.get(id=id)
-    except Exception as e:
-        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":f"{e}"})
+    
+    brother = MyUser.objects.filter(id=id).first()
+    
+    if not brother:
+        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"brother not found"})
+    
     br = brothership.objects.filter(user1=user,user2=brother) | brothership.objects.filter(user1=brother,user2=user) 
+    
     if not br.exists():
-        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"you are not brothers yet"})
+        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"you are not brothers"})
+    
     br = br.first()
     br.delete()
+    
     return Response(status=status.HTTP_200_OK,data={"msg":f"{brother.username} removed"})
 
 
@@ -116,19 +109,21 @@ def deleteBrother(request,id): # remove a brother from your list
 @permission_classes([IsAuthenticated])
 def mutualBrother(request, id): # get mutual brother of a brother
     user = request.user
-    try:
-        brother = MyUser.objects.get(id=id)
-    except MyUser.DoesNotExist:
+    
+    brother = MyUser.objects.filter(id=id).first()
+    if not brother:
         return Response(status=status.HTTP_404_NOT_FOUND, data={"error": "Brother not found"})
     
     user_brothers = set(user.brothers.all())
     brother_brothers = set(brother.brothers.all())
+    
     mutual_brothers = user_brothers.intersection(brother_brothers)
     
     mutual_brothers.discard(brother)
     mutual_brothers.discard(user)
+    
     if not mutual_brothers:
-        return Response(status=status.HTTP_404_NOT_FOUND, data={"msg": "No mutual brothers"})
+        return Response(status=status.HTTP_200_OK, data={})
     
     serializer = brotherDataSer(mutual_brothers, many=True).data
     return Response(status=status.HTTP_200_OK, data=serializer)
@@ -153,9 +148,9 @@ def list_blocked(request):
 def blockBrother(request,id): # block a brother
     user = request.user
 
-    try:
-        blocked = MyUser.objects.get(id=id)
-    except:
+    
+    blocked = MyUser.objects.filter(id=id).first()
+    if not blocked:
         return Response(status=status.HTTP_404_NOT_FOUND,data={"msg":"no id associated with that Id"})
 
     # check for friends to delete
