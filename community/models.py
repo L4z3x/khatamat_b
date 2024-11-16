@@ -1,7 +1,7 @@
 from django.db import models
 from api.models import MyUser
 from django.utils import timezone
-from func import upload_to
+
 
 
 class communityManager(models.Manager):
@@ -38,22 +38,30 @@ class communityManager(models.Manager):
             raise ValueError('community with this id cannot be found !')
         return com
 
-
+authenticationsList = [
+    ("none","none"),
+    ("custom","custom"),
+]
 class community (models.Model):
     name = models.CharField(max_length=20,null=False,unique=True)
     members = models.ManyToManyField(MyUser,through="communityMembership")
-    picture = models.ImageField(upload_to=upload_to('communityIMG',f'{name}'),null=True)
+    authentications = models.CharField(max_length=20,choices=authenticationsList)
+    picture = models.ImageField(upload_to="communityPic",null=True)
     bio = models.TextField(null=True)
 
     objects = communityManager()
     def __str__(self):
         return self.name
 
+ROLE = [
+        ("admin","admin"),
+        ("user","user"),
+    ]
 
 class communityMembership(models.Model):
     user =  models.ForeignKey(MyUser,on_delete=models.CASCADE)
-    community = models.ForeignKey(community,on_delete=models.CASCADE)
-    role = models.CharField(max_length=10,null=False) 
+    community = models.ForeignKey(community,on_delete=models.CASCADE,related_name="membership")
+    role = models.CharField(max_length=10,null=False,choices=ROLE) 
 
     def __str__(self):
         return f'{self.user} in {self.community}'
@@ -67,8 +75,8 @@ class post(models.Model):
     status = models.CharField(max_length=10)
     views = models.IntegerField()
     created_at = models.DateTimeField(default=timezone.now)
-    photo = models.ImageField(upload_to=upload_to('postImg',f'{title}'))
-    video = models.FileField(upload_to=upload_to('postVideo',f'{title}'))
+    photo = models.ImageField(upload_to="postPic")
+    video = models.FileField(upload_to="postVid")
     comment_n = models.IntegerField()
     
     def __str__(self):
