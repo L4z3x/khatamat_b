@@ -1,3 +1,7 @@
+general:
+        pending:
+                fix api docs (spectacular)
+                real time notifications with celery
 
 khatma:
         pending:

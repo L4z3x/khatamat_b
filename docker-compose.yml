@@ -1,27 +1,56 @@
 services:
-  web:
-    image: l4z3x/khatamat:latest
+  django-app:
+    build: 
+      context: ./app
     container_name: django-app
+    env_file:
+      - ./env_vars_django.txt
     ports:
       - "8000:8000"
-    environment:
-      POSTGRES_DB: mydatabase
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
+    volumes:
+      - ./:/usr/src/app/
     depends_on:
       - db
+  
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+  
+  flower:
+    image: mher/flower
+    ports:
+      - "5555:5555"
 
+
+  rabbitmq:
+    image: rabbitmq:management
+    restart: always
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
   db:
     image: postgres:13
-    container_name: postgres
-    environment:
-      POSTGRES_DB: mydatabase
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
+    container_name: database
+    env_file:
+      - ./env_vars_db.txt
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  
+  celery:
+    container_name: celery
+    restart: always
+    build:
+      context: ./app
+    command: celery -A app worker -l INFO -B
+    volumes:
+      - ./:/usr/src/app/
+    env_file:
+      - ./env_vars_django.txt
+    depends_on:
+      - django-app
+      - redis
 
 volumes:
   postgres_data:

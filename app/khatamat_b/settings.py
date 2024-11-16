@@ -4,6 +4,7 @@ from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 import django
+import os 
 
 # fix issue with rest_framework_jwt using smart_text
 from django.utils.encoding import smart_str  
@@ -16,20 +17,11 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+SECRET_KEY = os.environ.get("SECRET_KEY") or 'django-insecure-v+9uuo2f##*2g)%)haaia7ut*-d4ei9(!ju%p@&yme&15z#d(o'
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
+DEBUG = os.environ.get("DEBUG") or True
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-v+9uuo2f##*2g)%)haaia7ut*-d4ei9(!ju%p@&yme&15z#d(o'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ["*"]
-
-
-# Application definition
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS") or ["*"]
 
 INSTALLED_APPS = [
     'daphne',
@@ -40,7 +32,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
     'rest_framework',
     'drf_spectacular',
     'rest_framework_simplejwt',
@@ -66,8 +57,9 @@ SPECTACULAR_SETTINGS={
     'OPERATION_ID_GENERATOR': 'drf_spectacular.utils.simple_operation_id_generator',
     'SERVE_INCLUDE_SCHEMA': False,
 }
+
 SIMPLE_JWT={
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=100),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=100), 
     'REFRESH_TOKEN_LIFETIME': timedelta(days=20),
 }
 
@@ -81,11 +73,12 @@ CORS_ALLOWED_ORIGINS=[
     "http://127.0.0.1:8000",
     "http://127.0.0.1",
 ]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #  'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -95,12 +88,13 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'khatamat_b.urls'
 
-import os 
+# WSGI_APPLICATION = 'khatamat_b.wsgi.application'
+
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ BASE_DIR / 'khatamat_front/build'],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -113,11 +107,9 @@ TEMPLATES = [
     },
 ]
 
-# WSGI_APPLICATION = 'khatamat_b.wsgi.application'
 ASGI_APPLICATION = 'khatamat_b.asgi.application'
 
 AUTH_USER_MODEL  = 'api.MyUser'
-
 
 POSTGRES_DB = os.environ.get("POSTGRES_DB") or 'khatamat'
 POSTGRES_USER = os.environ.get("POSTGRES_USER") or ''
@@ -181,11 +173,6 @@ USE_TZ = True
 MEDIA_ROOT = BASE_DIR / "files"
 
 MEDIA_URL = '/files/'
-POSTGRES_PORT
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR,'khatamat_front/build/static')
-]
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
