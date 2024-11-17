@@ -8,7 +8,9 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./:/usr/src/app/
+      - backend_static:/app/static
+      - media:/app/files
+      - ./app:/app
     depends_on:
       - db
   
@@ -54,3 +56,6 @@ services:
 
 volumes:
   postgres_data:
+  backend_static:
+  media:
+    external: true

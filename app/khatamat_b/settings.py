@@ -21,17 +21,18 @@ SECRET_KEY = os.environ.get("SECRET_KEY") or 'django-insecure-v+9uuo2f##*2g)%)ha
 
 DEBUG = os.environ.get("DEBUG") or True
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS") or ["*"]
+ALLOWED_HOSTS = [host for host in os.environ.get("ALLOWED_HOSTS", "*").split(',')]
 
 INSTALLED_APPS = [
+    'django.contrib.admin',
     'daphne',
     'channels',
     'channels_auth_token_middlewares',
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.staticfiles',  # Ensure this is included
     'rest_framework',
     'drf_spectacular',
     'rest_framework_simplejwt',
@@ -170,8 +171,12 @@ USE_L10N = True
 
 USE_TZ = True
 
-MEDIA_ROOT = BASE_DIR / "files"
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
+MEDIA_ROOT = os.path.join(BASE_DIR, "files")
 MEDIA_URL = '/files/'
 
 
