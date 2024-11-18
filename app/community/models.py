@@ -45,7 +45,7 @@ authenticationsList = [
 class community (models.Model):
     name = models.CharField(max_length=20,null=False,unique=True)
     members = models.ManyToManyField(MyUser,through="communityMembership")
-    authentications = models.CharField(max_length=20,choices=authenticationsList)
+    authentications = models.CharField(max_length=20,choices=authenticationsList, default="none")
     picture = models.ImageField(upload_to="communityPic",null=True)
     bio = models.TextField(null=True)
 

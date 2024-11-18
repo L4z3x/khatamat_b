@@ -22,7 +22,6 @@ daphne==4.1.2
 decorator==5.1.1
 Django==5.1.2
 django-appconf==1.0.6
-django-channels==0.7.0
 django-channels-jwt==0.0.3
 django-cors-headers==4.6.0
 djangorestframework==3.15.2
