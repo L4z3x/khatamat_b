@@ -30,7 +30,7 @@ services:
     image: mher/flower
     ports:
       - "5555:5555"
-    command: celery -A  flower
+    command: celery  flower
     env_file:
       - ./env_vars_flower.txt
     depends_on:
