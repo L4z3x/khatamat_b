@@ -10,6 +10,7 @@ todo.txt
 gharib/
 # static files
 backend_static/*
+app/static/*
 # media
 media/*
 # github gitignore file for python
