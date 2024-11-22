@@ -17,8 +17,9 @@ python3 manage.py migrate
 echo "The Database has been updated"
 
 echo "Superuser..."
-cat create_superuser.py | python3 manage.py shell
-
+if [ "$(hostname)" = "django-app" ]; then
+  cat create_superuser.py | python3 manage.py shell
+fi
 # run the server
 echo "Starting the server..."
 python3 manage.py runserver 0.0.0.0:8000
