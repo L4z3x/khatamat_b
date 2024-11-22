@@ -19,6 +19,11 @@ services:
     image: redis
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   
   flower:
     container_name: flower
@@ -28,7 +33,6 @@ services:
     command: celery -A  flower
     env_file:
       - ./env_vars_flower.txt
-    
     depends_on:
       - celery
       - redis
@@ -41,7 +45,12 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
-  
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   db:
     image: postgres:13
     container_name: database
@@ -57,7 +66,7 @@ services:
       context: ./app
     command: celery -A khatamat_b worker -l INFO -B
     volumes:
-      - ./:/usr/src/app/
+      - ./app:/usr/src/app/
     env_file:
       - ./env_vars_django.txt
     depends_on:

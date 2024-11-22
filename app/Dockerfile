@@ -1,4 +1,6 @@
 FROM python:3.12-slim AS builder
+
+WORKDIR /app
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
@@ -10,9 +12,12 @@ RUN apt-get update && apt-get install -y \
 
 EXPOSE 8000
 
-COPY requirement.txt /
-RUN pip3 install -r requirement.txt 
+COPY requirements.txt /app/
+RUN pip install --upgrade pip
+RUN pip3 install -r requirements.txt 
 
 COPY docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
+COPY . /app
+
 ENTRYPOINT ["/docker-entrypoint.sh"]
