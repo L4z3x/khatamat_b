@@ -8,6 +8,10 @@ aiAsisstance.txt
 files/
 todo.txt
 gharib/
+# static files
+backend_static/*
+# media
+media/*
 # github gitignore file for python
 
 # Byte-compiled / optimized / DLL files
