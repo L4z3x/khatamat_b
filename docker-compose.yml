@@ -66,7 +66,7 @@ services:
       context: ./app
     command: celery -A khatamat_b worker -l INFO -B
     volumes:
-      - ./app:/usr/src/app/
+      - ./app:/app
     env_file:
       - ./env_vars_django.txt
     depends_on:
