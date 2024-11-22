@@ -8,22 +8,31 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - backend_static:/app/static
-      - media:/app/files
+      - ./backend_static:/app/static
+      - ./media:/app/files
       - ./app:/app
     depends_on:
       - db
   
   redis:
+    container_name: redis
     image: redis
     ports:
       - "6379:6379"
   
   flower:
+    container_name: flower
     image: mher/flower
     ports:
       - "5555:5555"
-
+    command: celery -A  flower
+    env_file:
+      - ./env_vars_flower.txt
+    
+    depends_on:
+      - celery
+      - redis
+      - rabbitmq
 
   rabbitmq:
     image: rabbitmq:management
@@ -32,6 +41,7 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+  
   db:
     image: postgres:13
     container_name: database
@@ -45,7 +55,7 @@ services:
     restart: always
     build:
       context: ./app
-    command: celery -A app worker -l INFO -B
+    command: celery -A khatamat_b worker -l INFO -B
     volumes:
       - ./:/usr/src/app/
     env_file:
