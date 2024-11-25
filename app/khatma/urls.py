@@ -11,4 +11,5 @@ urlpatterns = [
     path("khatma-membership/<int:id>/", khatma_membership.as_view(),name="add member to khatma"),
     path("list-khatma-membership/", khatma_membership.as_view(),name="list all members of khatma"),
     path("list-khatma/<int:group_id>/", list_khatmas_of_group,name="list khatmas of a group"),
+    path("messages/<int:group_id>/", list_messages.as_view(),name="list messages of a khatma"),
 ]

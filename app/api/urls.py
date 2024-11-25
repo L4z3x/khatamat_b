@@ -4,8 +4,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
 urlpatterns = [
     path('refreshtoken/',TokenRefreshView.as_view(),name="refresh_token"),
     path('login/',TokenObtainPairView.as_view(),name="get_token"),
-    path('signup/',views.CreateUserapi.as_view(), name='user-list'),
-    path("delete/<int:user_id>/", views.DeleteUserapi.as_view(), name="delete-user"),
+    path('signup/',views.CreateUser, name='user-list'),
+    path("delete/<int:user_id>/", views.DeleteUser.as_view(), name="delete-user"),
     path("retreive/<int:user_id>/", views.ListUserapi.as_view(), name="retreive-user"),
     path("retreive-all/", views.ListUserapi.as_view(), name="retreive-all-users"), # to be removed in production
     path("update/", views.updateUser , name="update-user"),
