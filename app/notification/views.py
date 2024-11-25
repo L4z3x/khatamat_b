@@ -60,10 +60,10 @@ def send_brothershipReq(request,id):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def accept_brothershipReq(request,id):
+def accept_brothershipReq(request,user_id):
     user = request.user
     
-    sender = MyUser.objects.filter(id=id).first()# add whatever you want to send from the client side
+    sender = MyUser.objects.filter(id=user_id).first()# add whatever you want to send from the client side
     if not sender:
         return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"user not found"})
     

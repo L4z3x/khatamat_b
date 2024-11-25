@@ -5,9 +5,10 @@ from rest_framework import status
 from rest_framework import views
 from datetime import timedelta
 from django.utils import timezone
-from rest_framework.generics import RetrieveUpdateAPIView,RetrieveUpdateDestroyAPIView
-from rest_framework.mixins import CreateModelMixin,ListModelMixin,DestroyModelMixin
+from rest_framework.generics import RetrieveUpdateAPIView,RetrieveUpdateDestroyAPIView,ListAPIView
+from rest_framework.mixins import CreateModelMixin,ListModelMixin
 from khatma.models import Khatma,khatmaMembership,groupMembership,group
+from rest_framework.pagination import CursorPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import FormParser,MultiPartParser
 from rest_framework.decorators import api_view,permission_classes
@@ -407,3 +408,34 @@ def list_khatmas_of_group(request,group_id): # get khatmas of a group
 
     return Response(status=status.HTTP_200_OK,data={"current":current,"history":history})
     
+class messagePagination(CursorPagination):    
+    ordering = "-created_at" 
+    
+    
+class list_messages(ListAPIView):
+    serializer_class = messageSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = messagePagination
+    
+    def get_queryset(self):
+        msg_id = self.request.query_params.get('msg_id', None)
+        if msg_id != None:
+            msg = message.objects.filter(id=msg_id,group=self.kwargs['group_id'],removed=False).first()
+            print(msg)
+            if not msg:
+                return message.objects.none()    
+            return message.objects.filter(group=self.kwargs['group_id'],created_at__gte = msg.created_at) # .order_by("-created_at")
+        return message.objects.filter(group=self.kwargs['group_id']) # .order_by("-created_at")
+    """
+    fetches 10 recent created msgs by default
+    if a msg_id is specified then fetched msgs starting from that msg
+    """
+    def get(self,request,*args,**kwargs):
+        user = request.user
+        group_id = self.kwargs['group_id']
+        
+        # check user membership in the group
+        is_in_group = groupMembership.objects.filter(group=group_id,user=user).exists()
+        if not is_in_group:
+            return Response(status=status.HTTP_403_FORBIDDEN,data={"error":"user not in group"})
+        return self.list(request,*args,**kwargs)

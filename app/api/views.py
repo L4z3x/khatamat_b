@@ -21,16 +21,17 @@ class ListUserapi(generics.ListAPIView,generics.RetrieveAPIView): # remove in pr
             return self.list(request)
 
 @extend_schema(operation_id="create_user_account")
-class CreateUserapi(generics.CreateAPIView):
-    queryset = MyUser.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [AllowAny]
-
-    def post(self,request):
-        return self.create(request)
-
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def CreateUser(request):
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        data = serializer.validated_data
+        MyUser.objects.create_user(username=data['username'],email=data['email'],password=data["password"])
+        return Response(status=status.HTTP_201_CREATED)
+    
 @extend_schema(operation_id="delete_user_account")
-class DeleteUserapi(generics.DestroyAPIView):
+class DeleteUser(generics.DestroyAPIView):
     queryset = MyUser.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
