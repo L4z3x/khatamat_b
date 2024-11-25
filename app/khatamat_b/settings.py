@@ -51,6 +51,9 @@ REST_FRAMEWORK={
         'rest_framework.permissions.IsAuthenticated',
     ],
     "DEFAULT_SCHEMA_CLASS":"drf_spectacular.openapi.AutoSchema",
+    
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.CursorPagination',
+    'PAGE_SIZE': 10
 }
 
 SPECTACULAR_SETTINGS={
@@ -130,7 +133,7 @@ DATABASES = {
 }
     
 REDIS_CHANNEL_PORT = os.environ.get("REDIS_CHANNEL_PORT") or '6379'
-REDIS_CHANNEL_HOST = os.environ.get("REDIS_CHANNEL_HOST")  or "127.0.0.1"
+REDIS_CHANNEL_HOST = os.environ.get("REDIS_CHANNEL_HOST")  or "redis"
 
 CHANNEL_LAYERS = {
     "default": {
