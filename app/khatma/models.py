@@ -68,19 +68,24 @@ class groupMembership(models.Model): # users inside a khatma group
     def __str__(self):
         return f"{self.user} in {self.group} group"
 
-
 class media(models.Model):
     group = models.ForeignKey(group,on_delete=models.CASCADE,related_name="media")
     sender = models.ForeignKey(groupMembership,on_delete=models.SET_NULL,null=True)
     image = models.ImageField(upload_to="groupMedia/")
     
 class message(models.Model):
-    sender = models.ForeignKey(groupMembership,on_delete=models.CASCADE)
-    group = models.ForeignKey(group,on_delete=models.CASCADE)
-    message = models.TextField(max_length=400000,null=False)
+    sender = models.ForeignKey(groupMembership,on_delete=models.CASCADE,related_name="sentMessages")
+    group = models.ForeignKey(group,on_delete=models.CASCADE,related_name="messages")
+    message = models.TextField(max_length=5000,null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    removed = models.BooleanField(default=False)
     
+    class Meta:
+        indexes = [
+            models.Index(fields=["group", "created_at"]),
+            models.Index(fields=["sender"]),
+        ]
     def __str__(self):
         return f"{self.id}: {self.sender.user} : {self.group} : {self.message[:40]}"
 
