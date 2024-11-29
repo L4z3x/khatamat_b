@@ -1,0 +1,9 @@
+POSTGRES_DB= mydatabase
+POSTGRES_USER= myuser
+POSTGRES_PASSWORD= mypassword
+POSTGRES_HOST= db
+POSTGRES_PORT= 5432
+DEBUG=True
+SECRET_KEY =django-insecure-v+9uuo2f##*2g)%)haaia7ut*-d4ei9(!ju%p@&yme&15z#d(o
+ALLOWED_HOSTS=localhost,127.0.0.1
+DJANGO_SETTINGS_MODULE= khatamat_b.settings
