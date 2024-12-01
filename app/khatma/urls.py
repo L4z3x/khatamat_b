@@ -12,5 +12,5 @@ urlpatterns = [
     path("list-khatma-membership/", khatma_membership.as_view(),name="list all members of khatma"),
     path("list-khatma/<int:group_id>/", list_khatmas_of_group,name="list khatmas of a group"),
     path("messages/<int:group_id>/", list_messages.as_view(),name="list messages of a khatma"),
-    path("media/<int:group_id>/", upload_media,name="upload a file"),
+    path("media/<int:group_id>/", FileUploadMessage.as_view(),name="upload a file and send in a message"),
 ]

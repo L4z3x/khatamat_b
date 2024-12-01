@@ -69,12 +69,14 @@ class groupMembership(models.Model): # users inside a khatma group
     def __str__(self):
         return f"{self.user} in {self.group} group"
 
+
 class media(models.Model):
-    group = models.ForeignKey(group,on_delete=models.CASCADE,related_name="media")
-    sender = models.ForeignKey(groupMembership,on_delete=models.SET_NULL,null=True)
-    image = models.ImageField(upload_to="groupMedia/",null=True,serialize=True)
     file = models.FileField(upload_to=f"groupMedia/",null=True,serialize=True)
     
+    def __str__(self) -> str:
+        return f"{self.id}: {self.message.sender} -> {self.message}"
+
+
 class message(models.Model):
     sender = models.ForeignKey(groupMembership,on_delete=models.CASCADE,related_name="sentMessages")
     group = models.ForeignKey(group,on_delete=models.CASCADE,related_name="messages")
@@ -83,7 +85,8 @@ class message(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     removed = models.BooleanField(default=False)
     reply = models.ForeignKey("self",on_delete=models.CASCADE, null=True, blank=True, related_name="replies")
-    url = models.FilePathField(null=True,path="./files/groupMedia/")
+    file = models.OneToOneField(media,on_delete=models.CASCADE,related_name="message",null=True,blank=True)
+    file_path = models.FilePathField(path="/app/files/groupMedia",null=True,blank=True)
     
     class Meta:
         indexes = [
@@ -92,6 +95,7 @@ class message(models.Model):
         ]
     def __str__(self):
         return f"{self.id}: {self.sender.user} : {self.group} : {self.message[:40]}"
+
 
 # khatma section:
       

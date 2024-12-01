@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework import views
 from datetime import timedelta
 from django.utils import timezone
+from rest_framework.views import APIView
 from rest_framework.generics import RetrieveUpdateAPIView,RetrieveUpdateDestroyAPIView,ListAPIView
 from rest_framework.mixins import CreateModelMixin,ListModelMixin
 from khatma.models import Khatma,khatmaMembership,groupMembership,group
@@ -13,7 +14,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import FormParser,MultiPartParser
 from rest_framework.decorators import api_view,permission_classes
 from drf_spectacular.utils import extend_schema
-
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+import mimetypes
 
 # create a group with one admin group membership which is the sender
 
@@ -407,9 +410,11 @@ def list_khatmas_of_group(request,group_id): # get khatmas of a group
     history = khatmaDisplaySerializer(history,many=True).data
 
     return Response(status=status.HTTP_200_OK,data={"current":current,"history":history})
+
     
 class messagePagination(CursorPagination):    
     ordering = "-created_at" 
+
     
 class list_messages(ListAPIView):
     serializer_class = messageSerializer
@@ -437,27 +442,114 @@ class list_messages(ListAPIView):
         if not is_in_group:
             return Response(status=status.HTTP_403_FORBIDDEN,data={"error":"user not in group"})
         return self.list(request,*args,**kwargs)
-    
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def upload_media(request,group_id):
-    user = request.user
-    group = user.group.filter(id=group_id).first()
-    if not group:
-        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"group not found in user's groups"})
 
-    sender_membership = user.groupMembership.filter(group=group,user=user).first()
-    
-    if not sender_membership:
-        return Response(data={"error":"user's not member in group"},status=status.HTTP_403_FORBIDDEN)
-    
-    serializer = mediaSerializer(data=request.data)
-    
-    if serializer.is_valid():
-        serializer.validated_data['group_id'] = group.id
-        serializer.validated_data['sender'] = sender_membership
-        serializer.save()
-        return Response(serializer.data,status=status.HTTP_201_CREATED)
-    
-    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
+def validated_file_size(file):
+    max_size = 50 * 1024 * 1024  # 50 MB
+    if file.size > max_size:
+        return False
+    return True
+
+
+supported_mime_types = [
+    # Images
+    'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/bmp', 'image/tiff',
+    
+    # Videos
+    'video/mp4', 'video/mpeg', 'video/quicktime', 'video/x-msvideo', 'video/x-matroska', 'video/webm',
+    
+    # Audio
+    'audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/webm', 'audio/aac', 'audio/mp4', 'audio/x-wav', 'audio/flac',
+    
+    # Documents
+    'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'text/plain',
+    
+    # Archives
+    'application/zip', 'application/x-rar-compressed', 'application/x-7z-compressed', 'application/gzip',
+]
+
+
+def validated_file_type(file):
+    mime_type, encoding = mimetypes.guess_type(file.name)
+    if mime_type not in supported_mime_types:
+        return False
+    return True
+
+    
+class FileUploadMessage(APIView):
+    parser_classes = [MultiPartParser]
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'group_id'
+    
+    def post(self, request, *args, **kwargs):
+        # Extract file and group information
+        file = request.FILES['file']
+        group_id = self.kwargs['group_id']
+        if not validated_file_size(file):
+            return Response("file too large",status=status.HTTP_406_NOT_ACCEPTABLE)
+        
+        if not validated_file_type(file):
+            return Response("unsupported media type",status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+        
+        msg = request.data.get("msg",None)
+        reply = request.data.get("reply",None)
+        user_mem = request.user.groupMembership.filter(group=group_id).first()
+        
+        if reply:
+            reply = message.objects.filter(id=reply).first() # get the instance
+            if not reply:
+                return Response("message not found",status=status.HTTP_404_NOT_FOUND)
+        
+        gr = group.objects.filter(id=group_id).first()
+        if not gr:
+            return Response("group not found",status=status.HTTP_404_NOT_FOUND)
+        
+        # Save the file in the Media model
+        file = media.objects.create(
+            file=file
+        )
+        msg = message.objects.create(
+            group= gr,
+            sender= user_mem,
+            message= msg,
+            reply= reply,
+            file=file,
+            file_path= file.file.url
+        )
+        file_type, encoding = mimetypes.guess_type(file.file.path) # get the file type
+        # Generate file metadata
+        metadata = {
+            "id": file.id,
+            "url": file.file.url,
+            "file_name": file.file.name,
+            "file_type": file_type,
+            "file_size": file.file.size,
+        }
+
+        # Broadcast file metadata via WebSocket
+        channel_layer = get_channel_layer()
+        group_name = f"chat_{gr.id}"  # Channel Layer group name for the chat
+        msg_data = messageSerializer(msg).data
+        message_data = {
+                    "action": "send_message",
+                    "text": msg_data["message"],
+                    "time": msg_data["created_at"],
+                    "group": msg_data["group"],
+                    "id": msg_data['id'] ,
+                    "file":metadata,
+                    "reply": msg_data["reply"],
+                }
+        async_to_sync(channel_layer.group_send)(
+            group_name,
+            {
+                "type": "chat_message",
+                "message": message_data,
+            },
+        )
+        return Response(status.HTTP_201_CREATED)
+
+        # Return the file metadata as HTTP response    
+    
