@@ -5,6 +5,7 @@ urlpatterns = [
     path('refreshtoken/',TokenRefreshView.as_view(),name="refresh_token"),
     path('login/',TokenObtainPairView.as_view(),name="get_token"),
     path('signup/',views.CreateUser, name='user-list'),
+    path('account/',views.UserData, name='user-data'), 
     path("delete/<int:user_id>/", views.DeleteUser.as_view(), name="delete-user"),
     path("retreive/<int:user_id>/", views.ListUserapi.as_view(), name="retreive-user"),
     path("retreive-all/", views.ListUserapi.as_view(), name="retreive-all-users"), # to be removed in production

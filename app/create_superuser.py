@@ -7,7 +7,7 @@ MyUser = get_user_model()
 
 ADMIN_ACCOUNT = os.environ.get('ADMIN_ACCOUNT', 'admin@khatamat.test')
 ADMIN_ACCOUNT_PASSWORD = os.environ.get(
-    'ADMIN_ACCOUNT_PASSWORD', 'admin@khatamat')
+    'ADMIN_ACCOUNT_PASSWORD', 'admin')
 
 
 def create_admins(MyUser, username, email, password):

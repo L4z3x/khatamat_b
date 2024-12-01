@@ -2,10 +2,13 @@ general:
         pending:
                 fix api docs (spectacular)
                 real time notifications with celery
+                move def save in models to signals.py
+                writing tests
 
 khatma:
         pending:
                 - group invitation link
+                - add admins in the group by admin
                 - handle listing all or recent khatma memberships of user to display them on the side bar of profile
                 - set khatma maximum part length
 
