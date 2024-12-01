@@ -4,7 +4,7 @@ services:
       context: ./app
     container_name: django-app
     env_file:
-      - ./env_vars_django.txt
+      - ./.env.dev.app
     ports:
       - "8000:8000"
     volumes:
@@ -32,7 +32,7 @@ services:
       - "5555:5555"
     command: celery  flower
     env_file:
-      - ./env_vars_flower.txt
+      - ./.env.dev.db
     depends_on:
       - celery
       - redis
@@ -55,7 +55,7 @@ services:
     image: postgres:13
     container_name: database
     env_file:
-      - ./env_vars_db.txt
+      - ./.env.dev.db
     volumes:
       - postgres_data:/var/lib/postgresql/data
   
@@ -68,7 +68,7 @@ services:
     volumes:
       - ./app:/app
     env_file:
-      - ./env_vars_django.txt
+      - ./.env.dev.app
     depends_on:
       - django-app
       - redis
