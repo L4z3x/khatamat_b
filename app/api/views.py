@@ -8,7 +8,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework.permissions import IsAuthenticated,AllowAny
 
 @extend_schema(operation_id="get_user_list")
-class ListUserapi(generics.ListAPIView,generics.RetrieveAPIView): # remove in production
+class ListUserapi(generics.ListAPIView,generics.RetrieveAPIView): # retreive other data or all # remove in production
     queryset = MyUser.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
@@ -29,7 +29,17 @@ def CreateUser(request):
         data = serializer.validated_data
         MyUser.objects.create_user(username=data['username'],email=data['email'],password=data["password"])
         return Response(status=status.HTTP_201_CREATED)
+    return Response(status=status.HTTP_400_BAD_REQUEST,data=serializer.errors)
     
+    
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def UserData(request): # get user account
+    user = request.user
+    data = UserSerializer(user).data
+    return Response(status=status.HTTP_200_OK,data=data)
+    
+
 @extend_schema(operation_id="delete_user_account")
 class DeleteUser(generics.DestroyAPIView):
     queryset = MyUser.objects.all()
@@ -38,9 +48,9 @@ class DeleteUser(generics.DestroyAPIView):
     lookup_field = 'id'
 
     def delete(self,request,id = None):
-        if id:
+        if id: # additional check (token + id)
             user = MyUser.object.get(id=id)
-            if request.user == user:
+            if request.user == user: 
                 return self.destroy(request,id)
             return Response(status=status.HTTP_400_BAD_REQUEST,data={"error":"id doesn't match the sender's"})
         else:

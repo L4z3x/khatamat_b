@@ -11,7 +11,7 @@ class MyUser(AbstractBaseUser, PermissionsMixin):
     ]
     country_list=[
         ('Algeria','DZ'),
-    ]
+]
     # i think i am gonna add setting class
     username = models.CharField(unique=True,max_length=20)
     fullname = models.CharField(max_length=30,null=False)
@@ -36,20 +36,13 @@ class MyUser(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['email']
     
     def updateKhatmasNum(self,*args,**kwargs): # update khatma number seperately
-        groupMem = self.khatmaGroupMembership.all()
+        groupMem = self.groupMembership.all()
         self.khatmasNum = 0
         for g in groupMem:
             for kh in g.khatmaMembership.all():
                 if kh.progress == 100 and kh.status == "completed": 
                     self.khatmasNum += 1
         super().save(*args,**kwargs)
-
-    def save(self, *args, **kwargs):
-        # update number of brothers
-        # self.brothersNum = len(set(self.brothers.all() | self.brothers_set.all())) 
-        # update number of khatmas completed 
-        
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.username

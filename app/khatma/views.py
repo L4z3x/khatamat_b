@@ -93,7 +93,7 @@ class group_settings(RetrieveUpdateAPIView,ListModelMixin):
         settings = settings_queryset.first()
         gr = settings.group
 
-        is_admin = group.group_membership.filter(user=user,role="admin",group=gr).exists()
+        is_admin = gr.membership.filter(user=user,role="admin",group=gr).exists()
 
         if not is_admin:
             return "user not admin in group"
@@ -411,7 +411,6 @@ def list_khatmas_of_group(request,group_id): # get khatmas of a group
 class messagePagination(CursorPagination):    
     ordering = "-created_at" 
     
-    
 class list_messages(ListAPIView):
     serializer_class = messageSerializer
     permission_classes = [IsAuthenticated]
@@ -421,7 +420,6 @@ class list_messages(ListAPIView):
         msg_id = self.request.query_params.get('msg_id', None)
         if msg_id != None:
             msg = message.objects.filter(id=msg_id,group=self.kwargs['group_id'],removed=False).first()
-            print(msg)
             if not msg:
                 return message.objects.none()    
             return message.objects.filter(group=self.kwargs['group_id'],created_at__gte = msg.created_at) # .order_by("-created_at")
@@ -434,8 +432,32 @@ class list_messages(ListAPIView):
         user = request.user
         group_id = self.kwargs['group_id']
         
-        # check user membership in the group
+        # check user membership in the group 
         is_in_group = groupMembership.objects.filter(group=group_id,user=user).exists()
         if not is_in_group:
             return Response(status=status.HTTP_403_FORBIDDEN,data={"error":"user not in group"})
         return self.list(request,*args,**kwargs)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def upload_media(request,group_id):
+    user = request.user
+    group = user.group.filter(id=group_id).first()
+    if not group:
+        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"group not found in user's groups"})
+
+    sender_membership = user.groupMembership.filter(group=group,user=user).first()
+    
+    if not sender_membership:
+        return Response(data={"error":"user's not member in group"},status=status.HTTP_403_FORBIDDEN)
+    
+    serializer = mediaSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        serializer.validated_data['group_id'] = group.id
+        serializer.validated_data['sender'] = sender_membership
+        serializer.save()
+        return Response(serializer.data,status=status.HTTP_201_CREATED)
+    
+    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+

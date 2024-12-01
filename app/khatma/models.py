@@ -21,7 +21,8 @@ class group(models.Model):
         return self.name
     
     def save(self,*args,**kwargs):
-        super().save(*args,**kwargs)
+        super().save(*args,**kwargs) 
+        # TODO: move this to signal.py 
         if not hasattr(self,"settings"):
             settings = groupSettings.objects.create(group=self)
             self.settings = settings
@@ -63,7 +64,7 @@ class groupMembership(models.Model): # users inside a khatma group
     ]
     since = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(MyUser,on_delete=models.CASCADE,related_name="groupMembership")
-    group = models.ForeignKey(group,on_delete=models.CASCADE,related_name="khatma_G_membership")
+    group = models.ForeignKey(group,on_delete=models.CASCADE,related_name="membership")
     role = models.CharField(default="admin",max_length=6,choices=ROLE,blank=False)
     def __str__(self):
         return f"{self.user} in {self.group} group"
@@ -71,7 +72,8 @@ class groupMembership(models.Model): # users inside a khatma group
 class media(models.Model):
     group = models.ForeignKey(group,on_delete=models.CASCADE,related_name="media")
     sender = models.ForeignKey(groupMembership,on_delete=models.SET_NULL,null=True)
-    image = models.ImageField(upload_to="groupMedia/")
+    image = models.ImageField(upload_to="groupMedia/",null=True,serialize=True)
+    file = models.FileField(upload_to=f"groupMedia/",null=True,serialize=True)
     
 class message(models.Model):
     sender = models.ForeignKey(groupMembership,on_delete=models.CASCADE,related_name="sentMessages")
@@ -80,6 +82,8 @@ class message(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     removed = models.BooleanField(default=False)
+    reply = models.ForeignKey("self",on_delete=models.CASCADE, null=True, blank=True, related_name="replies")
+    url = models.FilePathField(null=True,path="./files/groupMedia/")
     
     class Meta:
         indexes = [
