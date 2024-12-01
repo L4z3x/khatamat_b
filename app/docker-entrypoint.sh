@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 cd /app
 
 echo "Waiting for Postgres DB"
