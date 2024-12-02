@@ -27,6 +27,7 @@ django-cors-headers==4.6.0
 djangorestframework==3.15.2
 djangorestframework-simplejwt==5.3.1
 drf-spectacular==0.27.2
+execnet==2.1.1
 executing==2.1.0
 flower==2.0.1
 geomet==0.2.1.post1
@@ -42,6 +43,7 @@ jsonschema==4.23.0
 jsonschema-specifications==2024.10.1
 kombu==5.4.2
 matplotlib-inline==0.1.7
+model-bakery==1.20.0
 msgpack==1.1.0
 oauthlib==3.2.2
 packaging==24.2
@@ -61,6 +63,9 @@ Pygments==2.18.0
 PyJWT==2.9.0
 pyOpenSSL==24.2.1
 pytest==8.3.3
+pytest-asyncio==0.24.0
+pytest-django==4.9.0
+pytest-xdist==3.6.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 pytz==2024.2

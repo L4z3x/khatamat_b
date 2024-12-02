@@ -43,10 +43,11 @@ class create_JoinRequest(views.APIView):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def send_brothershipReq(request,id):
+def send_brothershipReq(request,username):
     sender = request.user
-    receiver = MyUser.objects.filter(id=id).first()
-            
+    receiver = MyUser.objects.filter(username=username).first()
+    if not receiver:
+        return Response("user not found",status.HTTP_404_NOT_FOUND)
     if receiver == sender: # just for fun ;)
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE,data={"error":"user connot be brother with himself !!!"})
             

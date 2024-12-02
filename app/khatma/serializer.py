@@ -42,10 +42,14 @@ class khatma_membSerializer(serializers.ModelSerializer):
 class mediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = media
-        fields = ["file","image"]
-     
+        fields = ["file","image","id"]
+    
                
 class   messageSerializer(serializers.ModelSerializer):
     class Meta:
         model = message
         fields = '__all__'
+        
+        
+        
+        

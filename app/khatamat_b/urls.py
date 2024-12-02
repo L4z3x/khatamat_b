@@ -6,7 +6,7 @@ import rest_framework.urls
 from django.conf.urls.static import static
 from django.conf import settings
 from drf_spectacular.views import SpectacularAPIView,SpectacularSwaggerView,SpectacularRedocView
-urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
+urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/',include(rest_framework.urls)),
     path('schema/',SpectacularAPIView.as_view(),name="schema"),
@@ -16,3 +16,5 @@ urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
     path('khatma/',include(khatma.urls)),
     path('notification/',include(notification.urls)),
 ] 
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
