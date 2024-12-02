@@ -3,7 +3,8 @@ general:
                 fix api docs (spectacular)
                 real time notifications with celery
                 move def save in models to signals.py
-                writing tests
+                writing tests 
+                add a chronjob to scan for malwares using this cmd :clamscan --infected --remove /path/to/uploaded/files
 
 khatma:
         pending:
