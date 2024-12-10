@@ -6,12 +6,7 @@ from .serializer import messageSerializer
 from api.models import MyUser
 from channels.db import  database_sync_to_async
 from json.decoder import JSONDecodeError
-from urllib.parse import urlparse
-import os
-from khatamat_b.settings import CORS_ALLOWED_ORIGINS
 
-HOST = CORS_ALLOWED_ORIGINS[0]
-HOST2 = CORS_ALLOWED_ORIGINS[1]
 
 @database_sync_to_async
 def get_group_Mem(group,user): # return group Membership by user and group
@@ -128,7 +123,7 @@ class groupConsumer(AsyncWebsocketConsumer):
             return await self.send(text_data="json error") # malformed json data error 
         except:
             return await self.send(text_data="error")
-        action = data["action"]
+        action = data.get("action",None)
         reply = data.get('reply', None)
         msg = data.get('msg',None)
         msg_id = data.get("msg_id",None)

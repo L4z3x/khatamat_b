@@ -14,6 +14,7 @@ python manage.py collectstatic --noinput
 echo "Updating Database Tables"
 python3 manage.py makemigrations
 python3 manage.py migrate
+python3 manage.py spectacular --file schema.yml
 echo "The Database has been updated"
 
 echo "Superuser..."

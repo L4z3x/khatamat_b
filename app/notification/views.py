@@ -46,14 +46,21 @@ class create_JoinRequest(views.APIView):
 def send_brothershipReq(request,username):
     sender = request.user
     receiver = MyUser.objects.filter(username=username).first()
+    
     if not receiver:
         return Response("user not found",status.HTTP_404_NOT_FOUND)
-    if receiver == sender: # just for fun ;)
+    
+    # check if the user is trying to send a request to himself
+    if receiver == sender:
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE,data={"error":"user connot be brother with himself !!!"})
             
-        # check if they are brothers already
+    # check if they are brothers already
     if brothership.objects.filter(user1=sender,user2=receiver).exists() or brothership.objects.filter(user1=receiver,user2=sender).exists():
-        return Response(data={"error":"you are already brothers"},status=status.HTTP_302_FOUND)
+        return Response(data={"error":"you are already brothers"},status=status.HTTP_409_CONFLICT)
+    
+    # check if the request is already sent
+    if brothershipRequest.objects.filter(sender=sender,receiver=receiver).exists():
+        return Response(data={"error":"brothership request already sent"},status=status.HTTP_208_ALREADY_REPORTED)
             
     br = brothershipRequest.objects.create(sender=sender,receiver=receiver,status='pending')
     br.save()

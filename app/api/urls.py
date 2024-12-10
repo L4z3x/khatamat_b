@@ -1,6 +1,7 @@
 from api import views
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView 
+from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet 
 urlpatterns = [
     path('refreshtoken/',TokenRefreshView.as_view(),name="refresh_token"),
     path('login/',TokenObtainPairView.as_view(),name="get_token"),
@@ -15,5 +16,5 @@ urlpatterns = [
     path("mutual-brother/<int:user_id>/",views.mutualBrother ,name="ger mutuals brothers"),
     path("list-blocked/",views.list_blocked ,name="list blocked brothers"),
     path("block-brother/<int:user_id>/",views.blockBrother ,name="blocke brother"),
-    
+    path("fcm-device/", FCMDeviceAuthorizedViewSet.as_view({'post': 'create'}), name="create_fcm_device"),
 ]
