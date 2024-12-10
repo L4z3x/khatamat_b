@@ -4,7 +4,8 @@ services:
       context: ./app
     container_name: django-app
     env_file:
-      - ./.env.dev.app
+      - ./app.prod.env  # production
+      # - ./app.dev.env # develpoement
     ports:
       - "8000:8000"
     volumes:
@@ -15,6 +16,10 @@ services:
       - db
     networks:
       - app_network
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+      
   
   redis:
     container_name: redis
@@ -36,7 +41,7 @@ services:
       - "5555:5555"
     command: celery flower
     env_file:
-      - ./.env.dev.db
+      - ./flower.dev.env
     depends_on:
       - celery
       - redis
@@ -63,7 +68,7 @@ services:
     image: postgres:13
     container_name: database
     env_file:
-      - ./.env.dev.db
+      - ./db.dev.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -78,12 +83,15 @@ services:
     volumes:
       - ./app:/app
     env_file:
-      - ./.env.dev.app
+      - ./app.dev.env
     depends_on:
       - django-app
       - redis
     networks:
       - app_network
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
 
   nginx:
     image: nginx:latest

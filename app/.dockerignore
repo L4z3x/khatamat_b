@@ -1,0 +1,21 @@
+# Ignore log files
+*.log
+
+# Ignore environment variable files
+.env
+
+# Ignore Dockerfile
+Dockerfile
+
+# Ignore Docker Compose files
+docker-compose.yml
+
+# Ignore any temporary files
+*.tmp
+*.swp
+
+# Ignore git directory
+.git
+
+README.md
+

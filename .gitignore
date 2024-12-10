@@ -13,6 +13,17 @@ backend_static/*
 app/static/*
 # media
 media/*
+# schema file
+schema.yml
+# firebase tests
+firebase-client.html
+# firebase creds
+firebase_khatamat_credentiall.json
+# google cred
+google_client_secret.json
+# prod envs
+*prod.env
+
 # github gitignore file for python
 
 # Byte-compiled / optimized / DLL files
