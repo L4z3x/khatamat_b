@@ -111,7 +111,7 @@ class group_settings(RetrieveUpdateAPIView,ListModelMixin):
         elif in_group == "user not admin in group":
             return Response(status=status.HTTP_403_FORBIDDEN,data={"error":in_group})
     
-    def post(self,request,*args,**kwargs):
+    def post(self,request,*args,**kwargs): # update group settings
         
         in_group = self.is_in_group()
         if in_group == "group not found":

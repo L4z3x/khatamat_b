@@ -109,6 +109,15 @@ REST_AUTH = {
     'JWT_AUTH_REFRESH_COOKIE_PATH': '/auth/token/get-refresh/',
     'TOKEN_MODEL': None,
     'JWT_AUTH_HTTPONLY':False,  # enable this to allow javascript to access the cookie (refresh token)
+    '''
+    
+    there is a problem with the httponly flag,
+    it will associate every request with that cookie
+    and that will raise an error in simplejwt, so we need to disable it for now  
+    we must not send access_tokens (cookie) in requests to the allowAny endpoints e.g. login
+    https://forum.djangoproject.com/t/solved-allowany-override-does-not-work-on-apiview/9754
+    
+    '''    
     'JWT_AUTH_SECURE': not DEBUG, # False for development
     'JWT_AUTH_COOKIE_ENFORCE_CSRF_ON_UNAUTHENTICATED': not DEBUG, # False for developement
     'USER_DETAILS_SERIALIZER': 'api.serializers.UserSerializer',

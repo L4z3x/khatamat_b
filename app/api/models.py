@@ -5,35 +5,43 @@ from django.contrib.auth.hashers import make_password
 
 
 class MyUser(AbstractBaseUser, PermissionsMixin):
-    Gender_list = [
-        ('male', 'M'),
-        ('female','F'),
-    ]
-    country_list=[
-        ('Algeria','DZ'),
-]
-    # i think i am gonna add setting class
+ 
     username = models.CharField(unique=True,max_length=20)
-    fullname = models.CharField(max_length=30,null=False)
-    is_active = models.BooleanField(default= True)
-    is_staff = models.BooleanField(default=False)
     email = models.EmailField(unique=True,max_length=254)
-    gender = models.CharField(max_length=7,choices=Gender_list,default="M")
-    country = models.CharField(max_length=20,choices=country_list,default="DZ")
-    date_joined = models.DateTimeField(default=timezone.now)
-    last_login = models.DateTimeField(blank=True,null=True)
     profilePic = models.ImageField(upload_to="UserPofilePic",default='UserProfilePic/default.png',null=False)
-    khatmasNum = models.IntegerField(default=0)
-    brothersNum = models.IntegerField(default=0)
+    is_staff = models.BooleanField(default=False)
     brothers = models.ManyToManyField('self',symmetrical=False, through='brothership',related_name='brothers_set')
-    private = models.BooleanField(default=False,null=False)
-    blocked = models.ManyToManyField('self',symmetrical=False,default=None) # to be rethinked with it's views
+    blocked = models.ManyToManyField('self',symmetrical=False,default=None)
 
     objects = UserManager()
 
-
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
+    
+   
+    def __str__(self):
+        return self.username
+
+
+class UserSetting(models.Model):
+    Gender_list = [
+            ('male', 'M'),
+            ('female','F'),
+    ]
+    country_list=[
+            ('Algeria','DZ'),
+    ]
+    user = models.OneToOneField(MyUser,on_delete=models.CASCADE,related_name='setting')  
+    fullname = models.CharField(max_length=30,null=True)
+    is_active = models.BooleanField(default= True)
+    gender = models.CharField(max_length=7,choices=Gender_list,null=True,default=None)
+    country = models.CharField(max_length=20,choices=country_list,null=True,default=None)
+    date_joined = models.DateTimeField(auto_now_add=True)
+    last_login = models.DateTimeField(blank=True,null=True)
+    khatmasNum = models.IntegerField(default=0)
+    brothersNum = models.IntegerField(default=0)
+    private = models.BooleanField(default=False,null=False)
+    mode = models.CharField(max_length=20,default="light",choices=[("light","light"),("dark","dark")])
     
     def updateKhatmasNum(self,*args,**kwargs): # update khatma number seperately
         groupMem = self.groupMembership.all()
@@ -44,8 +52,6 @@ class MyUser(AbstractBaseUser, PermissionsMixin):
                     self.khatmasNum += 1
         super().save(*args,**kwargs)
 
-    def __str__(self):
-        return self.username
 
 
 class brothership(models.Model):    

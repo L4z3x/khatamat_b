@@ -1,44 +1,34 @@
 from rest_framework import generics,views
+from rest_framework.generics import RetrieveUpdateAPIView
 from .models import MyUser,brothership
 from rest_framework import status 
 from .serializers import *
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema
-from rest_framework.permissions import IsAuthenticated,AllowAny
-
-@extend_schema(operation_id="get_user_list")
-class ListUserapi(generics.ListAPIView,generics.RetrieveAPIView): # retreive other data or all # remove in production
-    queryset = MyUser.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [AllowAny]
-    lookup_field = 'id'
-
-    def get(self,request,id=None):
-        if id:
-            return self.retrieve(request)
-        else:
-            return self.list(request)
-
-@extend_schema(operation_id="create_user_account")
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def CreateUser(request):
-    serializer = UserSerializer(data=request.data)
-    if serializer.is_valid():
-        data = serializer.validated_data
-        MyUser.objects.create_user(username=data['username'],email=data['email'],password=data["password"])
-        return Response(status=status.HTTP_201_CREATED)
-    return Response(status=status.HTTP_400_BAD_REQUEST,data=serializer.errors)
+from rest_framework.permissions import IsAuthenticated
+ 
+class User_Setting(RetrieveUpdateAPIView):
+    serializer_class = UserSettingSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = UserSetting.objects.all()
+    lookup_field = 'user_id'
     
+    def get(self,request,*args,**kwargs):
+        user = request.user
+        self.queryset = self.queryset.filter(user=user)
+        if not self.queryset.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"no settings found"})
+        return self.retrieve(request,*args,**kwargs)   
     
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def UserData(request): # get user account
-    user = request.user
-    data = UserSerializer(user).data
-    return Response(status=status.HTTP_200_OK,data=data)
-    
+    def put(self,request,*args,**kwargs):
+        user = request.user
+        self.queryset = self.queryset.filter(user=user)
+        if not self.queryset.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"no settings found"})
+        return self.partial_update(request,*args,**kwargs)
+            
+
 
 @extend_schema(operation_id="delete_user_account")
 class DeleteUser(generics.DestroyAPIView):
@@ -60,7 +50,7 @@ class DeleteUser(generics.DestroyAPIView):
     operation_id="get_user_brother_list",
     summary="get brother list"
 )
-class brother(views.APIView):
+class brother(views.APIView): # get brothers
     permission_classes = [IsAuthenticated]
     
     def get(self,request,**args): # get brothers
@@ -79,18 +69,19 @@ class brother(views.APIView):
 @extend_schema(responses=brotherDataSer,operation_id="update_user")
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def updateUser(request):
+def updateUserSetting(request):
     user = request.user
 
-    serializer = UserSerializer(instance=user, data=request.data, partial=True)
+    serializer = UserSettingSerializer(data=request.data, partial=True)
 
     if not serializer.is_valid():
         return Response(status=status.HTTP_400_BAD_REQUEST,data=serializer.errors)
-    
+    if serializer.validated_data.get('user',None) != user.id:
+        return Response(status=status.HTTP_400_BAD_REQUEST,data={"error":"user doesn't match the sender's"})
+        
     serializer.save()
     
-   
-    return Response(status=status.HTTP_202_ACCEPTED,data={"msg":"updated succesfully"})
+    return Response(status=status.HTTP_202_ACCEPTED,data={"msg":"settingupdated succesfully"})
 
 
 @api_view(['POST'])

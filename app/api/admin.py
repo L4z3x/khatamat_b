@@ -5,3 +5,4 @@ from .models import *
 
 admin.site.register(MyUser)
 admin.site.register(brothership)
+admin.site.register(UserSetting)
