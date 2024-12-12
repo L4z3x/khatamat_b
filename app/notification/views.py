@@ -9,40 +9,22 @@ from api.serializers import brotherDataSer
 from drf_spectacular.utils import extend_schema
 from community.models import communityMembership
 
-
-
-# if authentication of commuity is not none, send multiple join requests to admins of a community 
-class create_JoinRequest(views.APIView):
-    permission_classes = [IsAuthenticated]
-    lookup_field = 'community_id'
-    
-    def post(self,request,group_name,format=None): # to be updated more to handle more errors.
-        user = request.user
-            
-        commu = community.objects.filter(name=group_name).first()
-
-        if not commu:
-            return Response(data={"error":"community not found"},status=status.HTTP_404_NOT_FOUND)
-        if commu.authentication == "none":
-            commu.members.add(user)
-            return Response(status=status.HTTP_202_ACCEPTED,data={"msg":f"added to {commu.name}"})
-        adminsMem = commu.membership.filter(role="admin").all()
-        admins =[]
-        for admin in adminsMem:
-            join_req = joinRequest.objects.filter(sender=user,receiver=admin.user,community=commu)
-
-            if not join_req:
-                joinrequest = joinRequest.objects.create(sender=user,receiver=admin.user,community=commu)
-                joinrequest.save()
-                admins.append(joinrequest.receiver.username)
-        if not admins:
-            return Response(data={"msg":"requset already sent"},status=status.HTTP_208_ALREADY_REPORTED)
-        else:
-            return Response(data={"msg":"request sent","admins number":f"{len(admins)}"},status=status.HTTP_201_CREATED)
-    
+# ----------------- brothership -----------------
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@extend_schema(
+    operation_id="send_brothership_request",
+    summary="Send Brothership Request",
+    description="Send a brothership request to another user by their username.",
+    responses={
+        201: "Brothership request sent successfully.",
+        208: "Brothership request already sent.",
+        404: "User not found.",
+        406: "User cannot be brother with himself.",
+        409: "Users are already brothers."
+    }
+)
 def send_brothershipReq(request,username):
     sender = request.user
     receiver = MyUser.objects.filter(username=username).first()
@@ -68,6 +50,16 @@ def send_brothershipReq(request,username):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@extend_schema(
+    operation_id="accept_brothership_request",
+    summary="Accept Brothership Request",
+    description="Accept a brothership request from another user by their user ID.",
+    responses={
+        201: "Brothership request accepted successfully.",
+        302: "Users are already brothers.",
+        404: "User or brothership request not found."
+    }
+)
 def accept_brothershipReq(request,user_id):
     user = request.user
     
@@ -90,9 +82,18 @@ def accept_brothershipReq(request,user_id):
     return Response(data={"msg":f"{sender.username} accepted"},status=status.HTTP_201_CREATED)
 
 
-@extend_schema(responses=brotherDataSer)
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated]) # /* add status to brothership request serialiazer and view *
+@extend_schema(
+    operation_id="list_brothership_requests",
+    summary="List Brothership Requests",
+    description="Retrieve a list of pending brothership requests sent and received by the authenticated user.",
+    responses={
+        200: "List of pending brothership requests retrieved successfully.",
+        404: "No pending brothership requests found."
+    }
+)
 def list_brothershipReq(request):
     user = request.user
     
@@ -115,6 +116,16 @@ def list_brothershipReq(request):
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@extend_schema(
+    operation_id="deny_brothership_request",
+    summary="Deny Brothership Request",
+    description="Deny a brothership request by its ID.",
+    responses={
+        202: "The brothership request was rejected successfully.",
+        403: "The request was not meant for you.",
+        404: "No brothership request associated with that ID."
+    }
+)
 def deny_brothershipReq(request,id):
     user = request.user
     br = brothershipRequest.objects.filter(id=id).first()
@@ -127,8 +138,23 @@ def deny_brothershipReq(request,id):
     else:
         return Response(status=status.HTTP_403_FORBIDDEN,data={"msg":"the request was not meant for you"})
 
+
+# ----------------- community join request -----------------
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@extend_schema(
+    operation_id="accept_join_request",
+    summary="Accept Join Request",
+    description="Accept a join request to a community by its ID.",
+    responses={
+        202: "Join request accepted successfully.",
+        208: "Join request already accepted.",
+        400: "Invalid data provided.",
+        401: "User is not an admin of the community.",
+        404: "Sender ID or community not found.",
+    }
+)
 def accept_joinReq(request,id):
     user = request.user
     
@@ -166,3 +192,32 @@ def accept_joinReq(request,id):
 
     return Response(status=status.HTTP_202_ACCEPTED,data={"msg":f"accepted join request from {sender.username} to {commu.name}"})
 
+# if authentication of commuity is not none, send multiple join requests to admins of a community 
+class create_JoinRequest(views.APIView):
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'community_id'
+    
+    def post(self,request,group_name,format=None): # to be updated more to handle more errors.
+        user = request.user
+            
+        commu = community.objects.filter(name=group_name).first()
+
+        if not commu:
+            return Response(data={"error":"community not found"},status=status.HTTP_404_NOT_FOUND)
+        if commu.authentication == "none":
+            commu.members.add(user)
+            return Response(status=status.HTTP_202_ACCEPTED,data={"msg":f"added to {commu.name}"})
+        adminsMem = commu.membership.filter(role="admin").all()
+        admins =[]
+        for admin in adminsMem:
+            join_req = joinRequest.objects.filter(sender=user,receiver=admin.user,community=commu)
+
+            if not join_req:
+                joinrequest = joinRequest.objects.create(sender=user,receiver=admin.user,community=commu)
+                joinrequest.save()
+                admins.append(joinrequest.receiver.username)
+        if not admins:
+            return Response(data={"msg":"requset already sent"},status=status.HTTP_208_ALREADY_REPORTED)
+        else:
+            return Response(data={"msg":"request sent","admins number":f"{len(admins)}"},status=status.HTTP_201_CREATED)
+    
