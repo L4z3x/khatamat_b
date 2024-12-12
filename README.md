@@ -1,46 +1,63 @@
+# KHATAMAT
+A platform for gathering **"Ghoraba" غرباء** (Muslims) in one place where they can read the Quran, discuss, and do Khatmas together inside a group.
 
-# KHATAMAT 
-a platform for muslims to discuss various islamic topics and do khatmas together, read quran, discuss inside closed groups.
+## What is a Khatma?
+A **Khatma** is when a person or a group reads the Quran or a part of it by splitting it into shares (pages, thomon, hizbs, etc.). Each member reads their assigned share before the specified end time.
 
-# Contributing          
-## how to run it 
-### install virtual enviroment
-Set up a virtual enviroment
+---
+
+## Contributing
+
+### Prerequisites
+Make sure you have **Docker** and **Docker Compose** installed on your machine.
+
+### Server Side
+
+#### Clone the Repository
+```bash
+git clone https://github.com/L4z3x/khatamat_b.git
 ```
-python3 -m venv env
+
+#### Modify `app.dev.env` File
+
+Add the following fields to the `app.dev.env` file:
+
+```env
+EMAIL_USER=app-email-address
+APP_PASSWORD=email-app-password
+GOOGLE_OAUTH_CLIENT_SECRET=your-google-client-secret
+GOOGLE_OAUTH_CLIENT_ID=your-google-client-id
+GOOGLE_OAUTH_CALLBACK_URL=your-google-callback-url
 ```
-for Windows:
-```
-py -m venv env
-```
-Activate the virtual environment and verify it
-```
-source env/bin/activate
-```
-for Windows:
-```
-.\env\Scripts\activate
-```
-### clone and download requirements
-now clone the repo and install requirement for the backend
-```
-git clone https://github.com/L4z3x/khatamat_b 
-pip install -r requirement.txt
-``` 
-clone the front-end repo here https://github.com/KMalek101/gharib
-```
+
+#### Note
+Ensure that the `env_file` in the `docker-compose.yml` file points to `./app.dev.env`.
+
+#### Run Docker Compose
+```bash
 cd khatamat_b
+docker compose up --build -d
+```
+Now the server is ready.
+
+---
+
+### Client Side
+
+#### Clone the Repository
+```bash
 git clone https://github.com/KMalek101/gharib
-```    
-``` 
+```
+
+#### Run the Client Code
+Ensure you have **Next.js** installed on your machine.
+
+```bash
 cd gharib/
-npm i 
-npm run build
+npm install
+npm run dev
 ```
-### start the server
-go back to the main dir
-```
-cd ..
-python3 manage.py runserver
-```
-open a new branch and start working
+
+Open a new branch and start contributing!
+
+---
