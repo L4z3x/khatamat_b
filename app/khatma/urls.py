@@ -4,7 +4,7 @@ from django_channels_jwt.views import AsgiValidateTokenView
 urlpatterns = [
     path('auth/',AsgiValidateTokenView.as_view(),name='get uuid ticket'),
     path("khatma/<int:id>/",khatma_details.as_view(),name="retreive or update khatma"),
-    path("create-khatma/", khatma_details.as_view(),name="create khatma"),
+    path("create-khatma/", create_khatma.as_view(),name="create khatma"),
     path("group/", Group.as_view(),name="create delete group"),
     path("group-settings/<int:id>/",group_settings.as_view(),name="get update group settings"),
     path("add-member-group/<int:group_id>/", add_user_to_group,name="add member to group"),

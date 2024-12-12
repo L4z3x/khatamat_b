@@ -12,12 +12,23 @@ class khatmaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Khatma
         fields = '__all__'
+        extra_kwargs = {'launcher': {'required': False},
+                        'status': {'required': False},
+                        'progress': {'required': False},
+                        'endDate': {'required': False},
+                        'intentions': {'required': False},
+                        'duaa': {'required': False},
+                        'startSurah': {'required': False},
+                        'startVerse': {'required': False},
+                        'endSurah': {'required': False},
+                        'endVerse': {'required': False},
+        }
 
 
 class groupDisplaySerializer(serializers.ModelSerializer):
     icon = serializers.ImageField(allow_empty_file=True,allow_null=True,required=False)
     class Meta:
-        model = group
+        model = group   
         fields = ["id","name","icon"]
     
     
@@ -25,6 +36,8 @@ class groupSerializer(serializers.ModelSerializer):
     class Meta:
         model = group
         fields = '__all__' 
+        extra_kwargs = {'members': {'required': False},
+                        'icon': {'required': False}}
  
         
 class groupSettingsSerializer(serializers.ModelSerializer):

@@ -7,7 +7,22 @@ from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema
 from rest_framework.permissions import IsAuthenticated
- 
+from drf_spectacular.utils import OpenApiResponse
+# add extend_schema with details so the developers will understand everything with operation id, summary, description, and responses
+
+# ----------------- user -----------------
+
+@extend_schema(
+    operation_id="user_setting",
+    summary="Retrieve or update user settings",
+    description="This endpoint allows authenticated users to retrieve or update their settings. "
+                "GET request retrieves the settings, while PUT request updates the settings.",
+    responses={
+        200: UserSettingSerializer,
+        404: OpenApiResponse(description="No settings found"),
+        400: OpenApiResponse(description="Bad request")
+    }
+)
 class User_Setting(RetrieveUpdateAPIView):
     serializer_class = UserSettingSerializer
     permission_classes = [IsAuthenticated]
@@ -29,8 +44,17 @@ class User_Setting(RetrieveUpdateAPIView):
         return self.partial_update(request,*args,**kwargs)
             
 
-
-@extend_schema(operation_id="delete_user_account")
+@extend_schema(
+    operation_id="delete_user_account",
+    summary="Delete a user account",
+    description="This endpoint allows authenticated users to delete their account. "
+                "The user must provide their ID, and the ID must match the authenticated user's ID.",
+    responses={
+        204: OpenApiResponse(description="User deleted successfully"),
+        400: OpenApiResponse(description="Bad request, ID doesn't match the sender's or no ID specified"),
+        404: OpenApiResponse(description="User not found")
+    }
+)
 class DeleteUser(generics.DestroyAPIView):
     queryset = MyUser.objects.all()
     serializer_class = UserSerializer
@@ -46,9 +70,18 @@ class DeleteUser(generics.DestroyAPIView):
         else:
             return Response('No id specified',status=status. HTTP_400_BAD_REQUEST)
 
+
+# ----------------- brothership -----------------
+
 @extend_schema(
-    operation_id="get_user_brother_list",
-    summary="get brother list"
+    operation_id="list_friends",
+    summary="Retrieve a list of friends",
+    description="This endpoint allows authenticated users to retrieve a list of their friends. "
+                "The response includes a list of friends associated with the authenticated user.",
+    responses={
+        200: brotherDataSer,
+        404: OpenApiResponse(description="No brothers found")
+    }
 )
 class brother(views.APIView): # get brothers
     permission_classes = [IsAuthenticated]
@@ -65,28 +98,21 @@ class brother(views.APIView): # get brothers
 
         return Response(status=status.HTTP_404_NOT_FOUND)
     
-
-@extend_schema(responses=brotherDataSer,operation_id="update_user")
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def updateUserSetting(request):
-    user = request.user
-
-    serializer = UserSettingSerializer(data=request.data, partial=True)
-
-    if not serializer.is_valid():
-        return Response(status=status.HTTP_400_BAD_REQUEST,data=serializer.errors)
-    if serializer.validated_data.get('user',None) != user.id:
-        return Response(status=status.HTTP_400_BAD_REQUEST,data={"error":"user doesn't match the sender's"})
-        
-    serializer.save()
     
-    return Response(status=status.HTTP_202_ACCEPTED,data={"msg":"settingupdated succesfully"})
-
-
+@extend_schema(
+    operation_id="delete_brother",
+    summary="Delete a brother from the user's list",
+    description="allows authenticated users to remove a brother from their list. "
+                "The user must provide the brother's ID. If the brother is found and the relationship exists, "
+                "it will be deleted.",
+    responses={
+        200: OpenApiResponse(description="Brother removed successfully"),
+        404: OpenApiResponse(description="Brother not found or not in the user's list"),
+        400: OpenApiResponse(description="Bad request")
+    }
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-@extend_schema(operation_id="delete_brother")
 def deleteBrother(request,id): # remove a brother from your list
     user = request.user
     
@@ -106,7 +132,17 @@ def deleteBrother(request,id): # remove a brother from your list
     return Response(status=status.HTTP_200_OK,data={"msg":f"{brother.username} removed"})
 
 
-@extend_schema(responses=brotherDataSer,operation_id="get_mutual_brothers")
+@extend_schema(
+    operation_id="list_mutual_user",
+    summary="Retrieve mutual users",
+    description="This endpoint allows authenticated users to retrieve a list of mutual friends they share with another user. "
+                "The user must provide the user's ID. The response includes a list of mutual friends.",
+    responses={
+        200: brotherDataSer,
+        404: OpenApiResponse(description="user not found"),
+        400: OpenApiResponse(description="Bad request")
+    }
+)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def mutualBrother(request, id): # get mutual brother of a brother
@@ -130,7 +166,19 @@ def mutualBrother(request, id): # get mutual brother of a brother
     serializer = brotherDataSer(mutual_brothers, many=True).data
     return Response(status=status.HTTP_200_OK, data=serializer)
 
-@extend_schema(responses=brotherDataSer,operation_id="get_blocked_list")
+
+# ----------------- block -----------------
+
+@extend_schema(
+    operation_id="list_blocked",
+    summary="Retrieve blocked users",
+    description="This endpoint allows authenticated users to retrieve a list of users they have blocked. "
+                "The response includes a list of blocked users.",
+    responses={
+        200: brotherDataSer(many=True),
+        400: OpenApiResponse(description="Bad request")
+    }
+)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_blocked(request):
@@ -144,8 +192,18 @@ def list_blocked(request):
         data.append(serializer)
     return Response(status=status.HTTP_200_OK,data=data)
 
+@extend_schema(
+    operation_id="block_user",
+    summary="Block a User",
+    description="This endpoint allows authenticated users to block a User. "
+                "The user must provide the user's ID. If the brother is found, they will be blocked.",
+    responses={
+        200: OpenApiResponse(description="User blocked successfully"),
+        404: OpenApiResponse(description="User not found"),
+        400: OpenApiResponse(description="Bad request")
+    }
+)
 @api_view(['POST'])
-@extend_schema(operation_id="block_brother")
 @permission_classes([IsAuthenticated])
 def blockBrother(request,id): # block a brother
     user = request.user
@@ -155,10 +213,10 @@ def blockBrother(request,id): # block a brother
     if not blocked:
         return Response(status=status.HTTP_404_NOT_FOUND,data={"msg":"no id associated with that Id"})
 
-    # check for friends to delete
+    # check for brothers to delete
     if user.brothers.filter(id=blocked.id).exists():
         user.brothers.remove(blocked)
-    # check for friends to delete
+    # check for brothers to delete
     if user.brothers_set.filter(id=blocked.id).exists():
         user.brothers_set.remove(blocked)
 

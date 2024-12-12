@@ -125,9 +125,17 @@ REST_AUTH = {
 }
 
 SPECTACULAR_SETTINGS={
-    "TITLE":"GHARIB",
+    '''
+     In production, we should secure the docs endpoint by changing the permission class
+    from AllowAny to IsAdminUser (cutom permission for site admins). This ensures that only admin users can access the documentation. 
+    '''
+    
+    "TITLE":"khatamat",
+    "DESCRIPTION":"khatamat API documentation",
     'OPERATION_ID_GENERATOR': 'drf_spectacular.utils.simple_operation_id_generator',
     'SERVE_INCLUDE_SCHEMA': False,
+    'SERVE_PERMISSIONS': ['rest_framework.permissions.AllowAny'], # change to IsAdminUser in prod
+    'SERVE_URLCONF': 'khatamat_b.urls',    
 }
 
 SIMPLE_JWT = {

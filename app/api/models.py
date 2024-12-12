@@ -12,7 +12,9 @@ class MyUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     brothers = models.ManyToManyField('self',symmetrical=False, through='brothership',related_name='brothers_set')
     blocked = models.ManyToManyField('self',symmetrical=False,default=None)
-
+    muted_groups = models.ManyToManyField('khatma.group',default=None,related_name='muting_members')
+    muted_brothers = models.ManyToManyField('self',symmetrical=False,default=None,related_name='muting_brothers')
+    
     objects = UserManager()
 
     USERNAME_FIELD = 'username'
@@ -21,8 +23,7 @@ class MyUser(AbstractBaseUser, PermissionsMixin):
    
     def __str__(self):
         return self.username
-
-
+    
 class UserSetting(models.Model):
     Gender_list = [
             ('male', 'M'),

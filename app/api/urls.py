@@ -7,7 +7,7 @@ urlpatterns = [
     
     path("usersettings/<int:user_id>/", User_Setting.as_view(),name="get user settings"),
     
-    path("list-brother/", brother.as_view(),name="get the user's brothers"),
+    path("list-friends/", brother.as_view(),name="get the user's brothers"),
     
     path("delete-brother/<int:user_id>/", deleteBrother ,name="delete brother from brother List"),
     
@@ -15,7 +15,7 @@ urlpatterns = [
     
     path("list-blocked/", list_blocked ,name="list blocked brothers"),
     
-    path("block-brother/<int:user_id>/", blockBrother ,name="blocke brother"),
+    path("block-user/<int:user_id>/", blockBrother ,name="blocke brother"),
     
     path("fcm-device/", FCMDeviceAuthorizedViewSet.as_view({'post': 'create'}), name="create_fcm_device"),
 ]
