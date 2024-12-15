@@ -16,7 +16,10 @@ from rest_framework.decorators import api_view,permission_classes
 from drf_spectacular.utils import extend_schema
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from .tasks import push_added_to_group_notification
 import mimetypes
+
+
 
 #           ----------------- group -----------------
 
@@ -170,6 +173,26 @@ class group_settings(RetrieveUpdateAPIView,ListModelMixin):
             
 
 @extend_schema(
+    parameters=[
+        {
+            "name": "group_id",
+            "in": "path",
+            "required": True,
+            "description": "ID of the group to which the user will be added",
+            "schema": {
+                "type": "integer",
+            },
+        },
+        {
+            "username": "username",
+            "in": "path",
+            "required": True,
+            "description": "Username of the user to be added to the group",
+            "schema": {
+                "type": "string",
+            },
+        },
+    ],
     request=None,
     responses={
         201: "User added to group successfully",
@@ -187,7 +210,7 @@ def add_user_to_group(request,group_id): # add a member to a khatma
     if not gr:
         return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"group not found"})
     
-    new_member  = MyUser.objects.filter(id=request.data['user_id']).first()
+    new_member  = MyUser.objects.filter(username=request.data['username']).first()
     # check new member
     if not new_member:
         return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"member not found"})
@@ -197,6 +220,7 @@ def add_user_to_group(request,group_id): # add a member to a khatma
         return Response(status=status.HTTP_403_FORBIDDEN,data={"error":" not friends"})
     
     groupMembership.objects.create(group=gr,user=new_member,role="user")
+    push_added_to_group_notification.delay(gr.name,gr.id,new_member.id,user.username)
     return Response(status=status.HTTP_201_CREATED,data={"msg":f"member added successfully to {gr.name}"})
 
 
@@ -226,6 +250,90 @@ def exit_group(request,group_id): # user exiting a group
     userMembership.delete()
     return Response(status=status.HTTP_204_NO_CONTENT,data={"msg":"user removed from khatma successfully"})
 
+
+@permission_classes([IsAuthenticated])
+@api_view(['DELETE'])
+@extend_schema(
+    request=None,
+    responses={
+        204: "User removed from group successfully",
+        403: "Forbidden, user not admin in group",
+        404: "Group or user not found",
+    },
+    description="Remove a user from a group. Only the admin of the group can remove a user."
+)
+def kick_user(request,group_id,user_id): # kick a user from a group
+    user = request.user
+    # check groupMembership 
+    grMembership = groupMembership.objects.filter(user=user,group=group_id,role="admin").first()
+    if not groupMembership:
+        return Response(status=status.HTTP_403_FORBIDDEN,data={"error":"user not admin in group"})
+    # check user to be kicked
+    user_to_kick = MyUser.objects.filter(id=user_id).first()
+    if not user_to_kick:
+        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"user to be kicked not found"})
+    # check user to be kicked in the group
+    userGrMembership = groupMembership.objects.filter(user=user_to_kick,group=group_id).first()
+    if not userGrMembership:
+        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"user to be kicked not in group"})
+    userGrMembership.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT,data={"msg":"user kicked successfully"})
+
+@permission_classes([IsAuthenticated])
+@api_view(['POST'])
+@extend_schema(
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "role": {
+                    "type": "string",
+                    "enum": ["admin", "user"],
+                    "description": "New role for the user",
+                }
+            },
+            "required": ["role"],
+        }
+    },
+    responses={
+        200: "User role changed successfully",
+        400: "Bad request, invalid role",
+        403: "Forbidden, user not admin in group",
+        404: "Group or user not found",
+    },
+    description="Change the role of a user in a group. Only the admin of the group can change the role.",
+)
+def change_user_role(request,group_id,user_id):
+    user = request.user
+    # check group
+    gr = group.objects.filter(id=group_id).first()
+    if not gr:
+        return Response(status=status.HTTP_404_NOT_FOUND, data={"error": "group not found"})
+    
+    # check if the user is admin in the group
+    is_admin = groupMembership.objects.filter(user=user, role="admin", group=gr).exists()
+    if not is_admin:
+        return Response(status=status.HTTP_403_FORBIDDEN, data={"error": "user not admin in group"})
+    
+    # check user to change role
+    user_to_change = MyUser.objects.filter(id=user_id).first()
+    if not user_to_change:
+        return Response(status=status.HTTP_404_NOT_FOUND, data={"error": "user to change role not found"})
+    
+    # check user to change role in the group
+    userGrMembership = groupMembership.objects.filter(user=user_to_change, group=gr).first()
+    if not userGrMembership:
+        return Response(status=status.HTTP_404_NOT_FOUND, data={"error": "user to change role not in group"})
+    
+    # change role
+    new_role = request.data.get("role", None)
+    if new_role not in ["admin", "user"]:
+        return Response(status=status.HTTP_400_BAD_REQUEST, data={"error": "invalid role"})
+    
+    userGrMembership.role = new_role
+    userGrMembership.save()
+    
+    return Response(status=status.HTTP_200_OK, data={"msg": f"user role changed to {new_role} successfully"})
 
 #           ----------------- khatma -----------------
     
