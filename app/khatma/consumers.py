@@ -1,17 +1,17 @@
 # consumers.py
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .models import group, message,groupMembership,media
+from .models import group, message,groupMembership
 from .serializer import messageSerializer
 from api.models import MyUser
 from channels.db import  database_sync_to_async
 from json.decoder import JSONDecodeError
-
+from notification.tasks import push_message_notification
+from asgiref.sync import sync_to_async
 
 @database_sync_to_async
 def get_group_Mem(group,user): # return group Membership by user and group
     return groupMembership.objects.filter(group=group,user=user).first()
-
 
 @database_sync_to_async
 def get_group(id): # return group by id
@@ -181,7 +181,18 @@ class groupConsumer(AsyncWebsocketConsumer):
             return await self.send(text_data=msg)
         if not msg['message']:
             return await self.send(text_data="error bad request")
-        await  self.send_group_message(text=msg['message'],
+        users = await sync_to_async(list)(
+            self.group.members.exclude(id=self.user.id).values_list('id', flat=True)
+            )
+        push_message_notification.delay(message=f"{self.user}: {msg['message']}",
+                                        users_id=users,
+                                        group_name=self.group.name,
+                                        conversation= None, # for now
+                                        link = None, # for now
+                                        reply=msg.get('reply',None),
+                                        )
+        
+        return await self.send_group_message(text=msg['message'],
                                        type="chat.message",
                                        id=msg['id'],
                                        action="send_message",
@@ -245,16 +256,4 @@ class groupConsumer(AsyncWebsocketConsumer):
             }))
         await self.close()
 
-class twoPchatConsumer(AsyncWebsocketConsumer): # private chat consumer
-    async def connect(self):
-        self.user = self.scope['user']
-        # check if user is authenticated . just when using the query string jwt middleware
-        # to be removed in production 
-        if self.user.is_authenticated == False:
-            await self.close()    
         
-        await self.accept()
-    
-    
-    async def receive(self, text_data=None, bytes_data=None):
-        return await super().receive(text_data, bytes_data)

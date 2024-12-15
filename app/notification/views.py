@@ -8,6 +8,7 @@ from .serializers import *
 from api.serializers import brotherDataSer
 from drf_spectacular.utils import extend_schema
 from community.models import communityMembership
+from notification.tasks import push_req_notification 
 
 # ----------------- brothership -----------------
 
@@ -46,6 +47,12 @@ def send_brothershipReq(request,username):
             
     br = brothershipRequest.objects.create(sender=sender,receiver=receiver,status='pending')
     br.save()
+    # push notification
+    push_req_notification.delay(user_id=receiver.id,
+                                title="brothership request",
+                                message=f"{sender.username}sent you a friendship request",
+                                time=timezone.now())
+    
     return Response(data={"msg":f"brothership Request sent to {receiver.username}"},status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
@@ -64,19 +71,22 @@ def accept_brothershipReq(request,user_id):
     user = request.user
     
     sender = MyUser.objects.filter(id=user_id).first()# add whatever you want to send from the client side
-    if not sender:
-        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"user not found"})
-    
+    br =  brothershipRequest.objects.filter(sender=sender,receiver=user,status="pending").first() # check for the brothership request            return Response(data={"error":f"brothershipRequest not found ###{e}"},status= status.HTTP_404_NOT_FOUND)
+        
+    if not br or not sender:
+        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"brothershiprequest not found"})
+        
     if brothership.objects.filter(user1=sender,user2=user).exists() or brothership.objects.filter(user1=user,user2=sender).exists():
         return Response(data={"error":"you are already brothers"},status=status.HTTP_302_FOUND)
 
-    br =  brothershipRequest.objects.filter(sender=sender,receiver=user).first() # check for the brothership request            return Response(data={"error":f"brothershipRequest not found ###{e}"},status= status.HTTP_404_NOT_FOUND)
-    if not br:
-        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"brothershiprequest not found"})
-        
     br.status = "accepted"
     br.save()
-            
+    # push notification
+    push_req_notification.delay(user_id=sender.id,
+                                title="brothership request",
+                                message=f"{sender.username} accepted your friendship request",
+                                time= timezone.now())
+                                
     new_brothership = brothership.objects.create(user1=sender,user2=user) # create a new brothership
     new_brothership.save()
     return Response(data={"msg":f"{sender.username} accepted"},status=status.HTTP_201_CREATED)
@@ -134,11 +144,16 @@ def deny_brothershipReq(request,id):
     if br.receiver == user:
         br.status = 'rejected'
         br.save()
+        # push notification
+        push_req_notification.delay(user_id=br.sender.id,
+                                title="brothership request",
+                                message=f"{br.receiver.username} denied your friendship request",
+                                time=timezone.now())
+    
         return Response(status=status.HTTP_202_ACCEPTED,data={"msg":"the brothership req was rejected succesfully"})
     else:
         return Response(status=status.HTTP_403_FORBIDDEN,data={"msg":"the request was not meant for you"})
-
-
+    
 # ----------------- community join request -----------------
 
 @api_view(['POST'])
