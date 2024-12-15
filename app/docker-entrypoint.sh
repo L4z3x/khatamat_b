@@ -22,5 +22,5 @@ if [ "$(hostname)" = "django-app" ]; then
   cat create_superuser.py | python3 manage.py shell
 fi
 # run the server
-echo "Starting the server..."
-python3 manage.py runserver 0.0.0.0:8000
+echo "Starting the instance..."
+exec "$@"

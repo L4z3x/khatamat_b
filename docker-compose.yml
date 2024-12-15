@@ -3,6 +3,7 @@ services:
     build: 
       context: ./app
     container_name: django-app
+    command: python manage.py runserver 0.0.0.0:8000
     env_file:
       - ./app.prod.env  # production
       # - ./app.dev.env # develpoement
