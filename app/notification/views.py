@@ -1,16 +1,14 @@
 from rest_framework.permissions import IsAuthenticated
 from api.models import MyUser,brothership
-from notification.models import joinRequest,brothershipRequest
+from notification.models import brothershipRequest
 from rest_framework import views,status
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
 from .serializers import *
 from api.serializers import brotherDataSer
 from drf_spectacular.utils import extend_schema
-from community.models import communityMembership
 from notification.tasks import push_req_notification 
-
-# ----------------- brothership -----------------
+from django.utils import timezone
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -156,83 +154,83 @@ def deny_brothershipReq(request,id):
     
 # ----------------- community join request -----------------
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-@extend_schema(
-    operation_id="accept_join_request",
-    summary="Accept Join Request",
-    description="Accept a join request to a community by its ID.",
-    responses={
-        202: "Join request accepted successfully.",
-        208: "Join request already accepted.",
-        400: "Invalid data provided.",
-        401: "User is not an admin of the community.",
-        404: "Sender ID or community not found.",
-    }
-)
-def accept_joinReq(request,id):
-    user = request.user
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+# @extend_schema(
+#     operation_id="accept_join_request",
+#     summary="Accept Join Request",
+#     description="Accept a join request to a community by its ID.",
+#     responses={
+#         202: "Join request accepted successfully.",
+#         208: "Join request already accepted.",
+#         400: "Invalid data provided.",
+#         401: "User is not an admin of the community.",
+#         404: "Sender ID or community not found.",
+#     }
+# )
+# def accept_joinReq(request,id):
+#     user = request.user
     
-    serializer = joinRequestSerializer(data=request.data)
-    if not serializer.is_valid():
-        return Response(status=status.HTTP_400_BAD_REQUEST,data=serializer.errors)
-    else:
-        name = serializer.validated_data['g_name']
+#     serializer = joinRequestSerializer(data=request.data)
+#     if not serializer.is_valid():
+#         return Response(status=status.HTTP_400_BAD_REQUEST,data=serializer.errors)
+#     else:
+#         name = serializer.validated_data['g_name']
 
-    # check sender
-    sender = MyUser.objects.filter(id=id).first()
-    if not sender:
-        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"id of sender not found"})
+#     # check sender
+#     sender = MyUser.objects.filter(id=id).first()
+#     if not sender:
+#         return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"id of sender not found"})
 
-    # check khatma group existance
-    commu = community.objects.get(name=name)
-    if not commu:
-        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"commu not found"})
+#     # check khatma group existance
+#     commu = community.objects.get(name=name)
+#     if not commu:
+#         return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"commu not found"})
 
-    # check if user is admin of that khatma group 
-    if not community.membership.objects.filter(user=user,group=commu,role="admin").exists():    
-        return Response(status=status.HTTP_401_UNAUTHORIZED,data={"error":"your not admin of this community"})
+#     # check if user is admin of that khatma group 
+#     if not community.membership.objects.filter(user=user,group=commu,role="admin").exists():    
+#         return Response(status=status.HTTP_401_UNAUTHORIZED,data={"error":"your not admin of this community"})
 
-    if joinRequest.objects.filter(sender=sender,receiver=user,status="accepted").exists():
-        return Response(status=status.HTTP_302_FOUND,data={"msg":"join request already accepted"})
+#     if joinRequest.objects.filter(sender=sender,receiver=user,status="accepted").exists():
+#         return Response(status=status.HTTP_302_FOUND,data={"msg":"join request already accepted"})
     
-    join_req = joinRequest.objects.filter(sender=sender,receiver=user,status="pending",community=commu).first()
-    if not join_req:
-        return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"join request not found"})
-    join_req.status = "accepted"
-    join_req.save()
+#     join_req = joinRequest.objects.filter(sender=sender,receiver=user,status="pending",community=commu).first()
+#     if not join_req:
+#         return Response(status=status.HTTP_404_NOT_FOUND,data={"error":"join request not found"})
+#     join_req.status = "accepted"
+#     join_req.save()
     
-    new_commu_Membership = communityMembership.objects.create(user=sender,role="user",community=commu)
-    new_commu_Membership.save()
+#     new_commu_Membership = communityMembership.objects.create(user=sender,role="user",community=commu)
+#     new_commu_Membership.save()
 
-    return Response(status=status.HTTP_202_ACCEPTED,data={"msg":f"accepted join request from {sender.username} to {commu.name}"})
+#     return Response(status=status.HTTP_202_ACCEPTED,data={"msg":f"accepted join request from {sender.username} to {commu.name}"})
 
-# if authentication of commuity is not none, send multiple join requests to admins of a community 
-class create_JoinRequest(views.APIView):
-    permission_classes = [IsAuthenticated]
-    lookup_field = 'community_id'
+# # if authentication of commuity is not none, send multiple join requests to admins of a community 
+# class create_JoinRequest(views.APIView):
+#     permission_classes = [IsAuthenticated]
+#     lookup_field = 'community_id'
     
-    def post(self,request,group_name,format=None): # to be updated more to handle more errors.
-        user = request.user
+#     def post(self,request,group_name,format=None): # to be updated more to handle more errors.
+#         user = request.user
             
-        commu = community.objects.filter(name=group_name).first()
+#         commu = community.objects.filter(name=group_name).first()
 
-        if not commu:
-            return Response(data={"error":"community not found"},status=status.HTTP_404_NOT_FOUND)
-        if commu.authentication == "none":
-            commu.members.add(user)
-            return Response(status=status.HTTP_202_ACCEPTED,data={"msg":f"added to {commu.name}"})
-        adminsMem = commu.membership.filter(role="admin").all()
-        admins =[]
-        for admin in adminsMem:
-            join_req = joinRequest.objects.filter(sender=user,receiver=admin.user,community=commu)
+#         if not commu:
+#             return Response(data={"error":"community not found"},status=status.HTTP_404_NOT_FOUND)
+#         if commu.authentication == "none":
+#             commu.members.add(user)
+#             return Response(status=status.HTTP_202_ACCEPTED,data={"msg":f"added to {commu.name}"})
+#         adminsMem = commu.membership.filter(role="admin").all()
+#         admins =[]
+#         for admin in adminsMem:
+#             join_req = joinRequest.objects.filter(sender=user,receiver=admin.user,community=commu)
 
-            if not join_req:
-                joinrequest = joinRequest.objects.create(sender=user,receiver=admin.user,community=commu)
-                joinrequest.save()
-                admins.append(joinrequest.receiver.username)
-        if not admins:
-            return Response(data={"msg":"requset already sent"},status=status.HTTP_208_ALREADY_REPORTED)
-        else:
-            return Response(data={"msg":"request sent","admins number":f"{len(admins)}"},status=status.HTTP_201_CREATED)
+#             if not join_req:
+#                 joinrequest = joinRequest.objects.create(sender=user,receiver=admin.user,community=commu)
+#                 joinrequest.save()
+#                 admins.append(joinrequest.receiver.username)
+#         if not admins:
+#             return Response(data={"msg":"requset already sent"},status=status.HTTP_208_ALREADY_REPORTED)
+#         else:
+#             return Response(data={"msg":"request sent","admins number":f"{len(admins)}"},status=status.HTTP_201_CREATED)
     

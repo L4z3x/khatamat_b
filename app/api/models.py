@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 from django.utils import timezone
-from django.contrib.auth.hashers import make_password
 
 
 class MyUser(AbstractBaseUser, PermissionsMixin):
@@ -12,7 +11,7 @@ class MyUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     brothers = models.ManyToManyField('self',symmetrical=False, through='brothership',related_name='brothers_set')
     blocked = models.ManyToManyField('self',symmetrical=False,default=None)
-    muted_groups = models.ManyToManyField('khatma.group',default=None,related_name='muting_members')
+    muted_groups = models.ManyToManyField('group.group',default=None,related_name='muting_members')
     muted_brothers = models.ManyToManyField('self',symmetrical=False,default=None,related_name='muting_brothers')
     
     objects = UserManager()
@@ -23,6 +22,7 @@ class MyUser(AbstractBaseUser, PermissionsMixin):
    
     def __str__(self):
         return self.username
+
     
 class UserSetting(models.Model):
     Gender_list = [
@@ -54,7 +54,6 @@ class UserSetting(models.Model):
         super().save(*args,**kwargs)
 
 
-
 class brothership(models.Model):    
     user1 = models.ForeignKey(MyUser,on_delete=models.CASCADE,related_name='brothership_initiated')
     user2 = models.ForeignKey(MyUser,on_delete=models.CASCADE,related_name='brothership_received')
@@ -68,16 +67,11 @@ class brothership(models.Model):
     def __str__(self):
         return f'{self.user1.username} : {self.user2.username}'
 
-    def clean(self): # custom def for checking the brothership
+    def save(self, *args, **kwargs):
         if brothership.objects.filter(user1=self.user2, user2=self.user1).exists():
             raise ValueError("This brothership already exists in reverse.")
-
-    def save(self, *args, **kwargs):
-        # self.clean()
-        super().save(*args, **kwargs)
+        super().save(*args, **kwargs)    
         
-    
-    
     def delete(self, *args, **kwargs):
         brothership.objects.filter(user1=self.user2, user2=self.user1).delete()
         super().delete(*args,**kwargs)

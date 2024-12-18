@@ -1,6 +1,6 @@
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
-from khatma.models import media,message
+from group.models import media,message
 
 @receiver(post_delete, sender=media)
 def delete_media_file(sender, instance, **kwargs):

@@ -1,8 +1,8 @@
 # consumers.py
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .models import group, message,groupMembership
-from .serializer import messageSerializer
+from group.models import group, message,groupMembership
+from group.serializers import messageSerializer
 from api.models import MyUser
 from channels.db import  database_sync_to_async
 from json.decoder import JSONDecodeError

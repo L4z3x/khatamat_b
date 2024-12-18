@@ -64,7 +64,7 @@ INSTALLED_APPS = [
     
     'api',
     'notification',
-    'community',
+    'group',
     'khatma',
     'fcm_django',
 ]

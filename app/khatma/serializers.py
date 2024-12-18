@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from khatma.models import *
+from khatma.models import Khatma,khatmaMembership
 
 
 class khatmaDisplaySerializer(serializers.ModelSerializer):
@@ -24,45 +24,9 @@ class khatmaSerializer(serializers.ModelSerializer):
                         'endVerse': {'required': False},
         }
 
-
-class groupDisplaySerializer(serializers.ModelSerializer):
-    icon = serializers.ImageField(allow_empty_file=True,allow_null=True,required=False)
-    class Meta:
-        model = group   
-        fields = ["id","name","icon"]
-    
-    
-class groupSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = group
-        fields = '__all__' 
-        extra_kwargs = {'members': {'required': False},
-                        'icon': {'required': False}}
- 
-        
-class groupSettingsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = groupSettings
-        fields = "__all__"
-    
         
 class khatma_membSerializer(serializers.ModelSerializer):
     class Meta:
         model = khatmaMembership
         fields = "__all__"
   
-  
-class mediaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = media
-        fields = ["file","image","id"]
-    
-               
-class   messageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = message
-        fields = '__all__'
-        
-        
-        
-        
