@@ -277,7 +277,7 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
 ACCOUNT_EMAIL_REQUIRED = True
 
-ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_AUTHENTICATION_METHOD = 'allauth.account.models.AuthenticationMethod.EMAIL_USERNAME'
 
 # Email settings
 EMAIL_USER = os.environ.get("EMAIL_USER", None)
