@@ -18,7 +18,7 @@ python3 manage.py spectacular --file schema.yml
 echo "The Database has been updated"
 
 echo "Superuser..."
-if [ "$(hostname)" = "django-app" ]; then
+if [ "$CONTAINER_NAME" = "django-app" ]; then
   cat create_superuser.py | python3 manage.py shell
 fi
 # run the server
