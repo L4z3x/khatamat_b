@@ -1,0 +1,3 @@
+xpack.security.authc:
+  username: ${ELASTICSEARCH_USERNAME}
+  password: ${ELASTICSEARCH_PASSWORD}

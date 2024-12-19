@@ -1,10 +1,10 @@
-
-
+import sys
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 import django
 import os 
+import firebase_admin
 
 # fix issue with rest_framework_jwt using smart_text
 from django.utils.encoding import smart_str  
@@ -13,13 +13,15 @@ django.utils.encoding.smart_text = smart_str
 # fix issue with rest_framework_jwt using ugettecxt
 from django.utils.translation import gettext
 django.utils.translation.ugettext = gettext
+
 load_dotenv()
 
-from firebase_admin import credentials, initialize_app  
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-cred = credentials.Certificate(os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"))
 
-FIREBASE_APP = initialize_app(cred)
+if not firebase_admin._apps:
+    cred = firebase_admin.credentials.Certificate(os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"))
+    FIREBASE_APP = firebase_admin.initialize_app(cred)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -121,7 +123,7 @@ REST_AUTH = {
     'JWT_AUTH_SECURE': not DEBUG, # False for development
     'JWT_AUTH_COOKIE_ENFORCE_CSRF_ON_UNAUTHENTICATED': not DEBUG, # False for developement
     'USER_DETAILS_SERIALIZER': 'api.serializers.UserSerializer',
-
+    'REGISTER_SERIALIZER': 'khatamat_b.serializers.CustomRegisterSerializer',
 }
 
 SPECTACULAR_SETTINGS={
@@ -277,12 +279,13 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 
 ACCOUNT_EMAIL_REQUIRED = True
 
+ACCOUNT_UNIQUE_EMAIL = True
+
 ACCOUNT_AUTHENTICATION_METHOD = 'allauth.account.models.AuthenticationMethod.EMAIL_USERNAME'
 
 # Email settings
 EMAIL_USER = os.environ.get("EMAIL_USER", None)
 APP_PASSWORD = os.environ.get("APP_PASSWORD", None)
-
 
 
 if PRODUCTION == False:
@@ -297,3 +300,39 @@ else:
     EMAIL_HOST_USER = EMAIL_USER
     EMAIL_HOST_PASSWORD = APP_PASSWORD
     DEFAULT_FROM_EMAIL = EMAIL_USER
+
+
+LOG_LEVEL = os.environ.get('DJANGO_LOG_LEVEL', 'INFO')
+from filters import CustomLogFilter
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'request_filter': {
+            '()': CustomLogFilter,  # Custom filter that adds request details
+        },
+    },
+    'formatters': {
+        'json': {
+            '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 5,
+            'formatter': 'json',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

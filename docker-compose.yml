@@ -108,6 +108,41 @@ services:
     networks:
       - app_network
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.8.0
+    container_name: elasticsearch
+    ports:
+      - 9200:9200
+      - 9300:9300
+    env_file:
+      - ./elastic.dev.env
+    volumes:
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    networks:
+      - app_network
+  
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.8.0
+    ports:
+      - 5601:5601
+    networks:
+      - app_network
+    depends_on:
+      - elasticsearch
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.8.0
+    volumes:
+      - ./filebeat.yml:/filebeat.yml:ro
+      - ./app/logs:/logs
+    environment:  
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    networks:
+      - app_network
+    depends_on:
+      - elasticsearch
+    command: ["filebeat", "-e", "-strict.perms=false", "-c", "/filebeat.yml"]
 networks:
   app_network:
     driver: bridge
@@ -115,5 +150,6 @@ networks:
 volumes:
   postgres_data:
   backend_static:
+  logs:
   media:
     external: true

@@ -1,0 +1,43 @@
+filebeat.inputs:
+  # Define the log files Filebeat should monitor
+  - type: log
+    enabled: true
+    paths:
+      - /filebeat/logs/*.log  # Path to your log files
+    fields:
+      environment: development  # Custom field to tag logs
+
+  # Optionally include container logs if needed
+  - type: container
+    enabled: true
+    paths:
+      - /var/lib/docker/containers/*/*.log
+    fields:
+      environment: docker
+
+output.elasticsearch:
+  # Send logs to Elasticsearch
+  hosts: ["http://elasticsearch:9200"]
+  username: ${ELASTICSEARCH_USERNAME}     # Use credentials if Elasticsearch security is enabled
+  password: ${ELASTICSEARCH_PASSWORD}
+
+setup.kibana:
+  # Connect Filebeat to Kibana for visualization setup
+  host: "http://kibana:5601"
+
+processors:
+  # Drop or modify fields before indexing (optional)
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+
+logging:
+  # Log Filebeat's own activity
+  level: info
+  to_files: true
+  files:
+    path: /filebeat/logs
+    name: filebeat
+    keepfiles: 7
+    permissions: 0644
