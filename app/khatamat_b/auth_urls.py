@@ -1,7 +1,7 @@
 from django.urls import path, include
-from utils import GoogleLogin
+from khatamat_b.utils import GoogleLogin
 from dj_rest_auth.views import PasswordResetConfirmView
-
+    
 urlpatterns = [
     path("", include("dj_rest_auth.urls")), # dj_rest_auth urls
     path("registration/", include("dj_rest_auth.registration.urls")), # dj_rest_auth registration urls
@@ -9,3 +9,6 @@ urlpatterns = [
     # path("social/", include("allauth.socialaccount.urls")), # allauth socialaccount urls   
     path("google/", GoogleLogin.as_view() ), # google social login urls
 ]
+
+
+

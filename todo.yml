@@ -5,7 +5,21 @@ general:
                 move def save in models to signals.py
                 writing tests 
                 add a chronjob to scan for malwares using this cmd :clamscan --infected --remove /path/to/uploaded/files
-
+                share ayahs from quran  or tafsir to social media (i.e. whatsapp, facebook, twitter)
+                 -> link to chatgpt disc:https://chatgpt.com/share/676317a0-a4cc-8013-861e-9f4e0b2a48ec
+                set up a custom filter for the user in logging
+                add a custom middleware to log the request and response
+        copilot: 
+                caching for frequently accessed data
+                optimize database queries for better performance
+                set up automated backups for the database
+                configure a load balancer for the application
+                implement rate limiting to prevent abuse
+                set up monitoring and alerting for critical services
+                perform security audit and fix vulnerabilities
+                implement CI/CD pipeline for automated deployments (slypex)
+                set up a staging environment for testing
+                improve logging and error reporting
 khatma:
         pending:
                 - group invitation link
